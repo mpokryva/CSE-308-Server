@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class GerrymanderingApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(GerrymanderingApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(GerrymanderingApplication.class, args);
+    }
 }

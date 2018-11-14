@@ -1,0 +1,67 @@
+Precincts:
+	- Divided into two files (_info.json and _geo.json)
+	- Info contains voting and population info
+	- Info is in dictionary format (key is precinct id)
+	- Attributes (that aren't self explanatory):
+    		'gov_dvote' : democratic votes for governor
+    		'gov_rvote' : republican " "
+    		'comp_dvote' : democratic votes for comptroller
+    		'comp_rvote' : republican " "
+   		'uss_dvote' : democratic votes for senator
+    		'uss_rvote' : republican " "
+	
+	- Geo is an array of geojson features (in proper format)
+	- Each feature consists of the geometry array and properties dict which contains the precinct geo_id
+
+	Geo Format:
+	{geoid : { type: Feature, geometry: {...}, properties: { geoid: ... } }, ... } 
+
+	Info Format:
+	{ geoid : {
+		'voting_age_population' : ...
+		'population': ....
+		'district_id': ...
+		'gov_dvote' : democratic votes for governor
+    		'gov_rvote' : republican " "
+    		'comp_dvote' : democratic votes for comptroller
+    		'comp_rvote' : republican " "
+   		'uss_dvote' : democratic votes for senator
+    		'uss_rvote' : republican " " }
+	}
+		
+
+Districts: 
+	- Uses district number as ID in properties dict and as the key in the info dict
+
+	Geo Format:
+	{district_id : { type: Feature, geometry: {...}, properties: { district_id: ... } }, ... }
+
+	Info Format:
+	{ district_id : {
+		'voting_age_population' : ...
+		'population': ....
+		'gov_dvote' : democratic votes for governor
+    		'gov_rvote' : republican " "
+    		'comp_dvote' : democratic votes for comptroller
+    		'comp_rvote' : republican " "
+   		'uss_dvote' : democratic votes for senator
+    		'uss_rvote' : republican " " }
+	}
+
+States: 
+	- Only one feature geojson and one info dict
+
+	Geo Format:
+	 { type: Feature, geometry: {...}, properties: { district_id: ... } }, ... ] 
+
+	Info Format:
+	{
+		'voting_age_population' : ...
+		'population': ....
+		'gov_dvote' : democratic votes for governor
+    		'gov_rvote' : republican " "
+    		'comp_dvote' : democratic votes for comptroller
+    		'comp_rvote' : republican " "
+   		'uss_dvote' : democratic votes for senator
+    		'uss_rvote' : republican " " }
+	}
