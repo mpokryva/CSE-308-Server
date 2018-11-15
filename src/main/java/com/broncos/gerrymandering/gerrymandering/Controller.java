@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Iterator;
 
 /**
@@ -19,6 +17,7 @@ public class Controller {
 
     private static final String PROPERTIES_KEY = "properties";
     private static final String DISTRICT_ID_KEY = "district_id";
+    private JSONParser jsonParser = new JSONParser();
 
     @RequestMapping("/greeting")
     public String greeting(@RequestParam(value = "name") String name) {
@@ -30,7 +29,7 @@ public class Controller {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public String getPrecinctInfo(@RequestParam(value = "geoid") String geoid) throws Exception {
         final String pathname = "data/ny_precs_info.json";
-        JSONObject precinctsInfo = getJsonFromFile(pathname);
+        JSONObject precinctsInfo = jsonParser.getJsonFromFile(pathname);
         return precinctsInfo.getJSONObject(geoid).toString();
     }
 
@@ -39,7 +38,7 @@ public class Controller {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public String getPrecinctBoundaries(@RequestParam(value = "districtid") String districtid) throws Exception {
         final String pathname = "data/ny_precs_geo.json";
-        JSONObject precinctsBoundaries = getJsonFromFile(pathname);
+        JSONObject precinctsBoundaries = jsonParser.getJsonFromFile(pathname);
         JSONObject response = new JSONObject();
         Iterator<String> it = precinctsBoundaries.keys();
         while (it.hasNext()) {
@@ -58,7 +57,7 @@ public class Controller {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public String getDistrictInfo(@RequestParam(value = "districtid") String districtid) throws Exception {
         final String pathname = "data/ny_dist_info.json";
-        JSONObject districtsInfo = getJsonFromFile(pathname);
+        JSONObject districtsInfo = jsonParser.getJsonFromFile(pathname);
         return districtsInfo.getJSONObject(districtid).toString();
     }
 
@@ -67,7 +66,7 @@ public class Controller {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public String getDistrictBoundaries(@RequestParam(value = "statecode") String statecode) throws Exception {
         final String pathname = "data/ny_dist_geo.json";
-        JSONObject districtsBoundaries = getJsonFromFile(pathname);
+        JSONObject districtsBoundaries = jsonParser.getJsonFromFile(pathname);
         return districtsBoundaries.toString();
     }
 
@@ -76,7 +75,7 @@ public class Controller {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public String getStateInfo(@RequestParam(value = "statecode") String statecode) throws Exception {
         final String pathname = "data/ny_info.json";
-        JSONObject stateInfo = getJsonFromFile(pathname);
+        JSONObject stateInfo = jsonParser.getJsonFromFile(pathname);
         return stateInfo.toString();
     }
 
@@ -85,17 +84,8 @@ public class Controller {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public String getStateBoundaries(@RequestParam(value = "statecode") String statecode) throws Exception {
         final String pathname = "data/ny_geo.json";
-        JSONObject stateBoundaries = getJsonFromFile(pathname);
+        JSONObject stateBoundaries = jsonParser.getJsonFromFile(pathname);
         return stateBoundaries.toString();
     }
 
-    private JSONObject getJsonFromFile(String pathname) {
-        try {
-            String content = new String(Files.readAllBytes(Paths.get(pathname)));
-            return new JSONObject(content);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 }
