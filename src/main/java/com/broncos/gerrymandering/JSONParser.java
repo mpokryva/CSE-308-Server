@@ -1,9 +1,7 @@
-package com.broncos.gerrymandering.gerrymandering;
+package com.broncos.gerrymandering;
 
 import org.json.JSONObject;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.util.GeometryExtracter;
 import org.wololo.jts2geojson.GeoJSONReader;
 
 import java.nio.file.Files;
@@ -39,6 +37,8 @@ public class JSONParser {
         String geoJson = json.getJSONObject(geoid).getJSONObject("geometry").toString();
         Geometry geometry = parser.geoJsonToGeometry(geoJson);
         System.out.println(geometry);
+
+
     }
 
 }

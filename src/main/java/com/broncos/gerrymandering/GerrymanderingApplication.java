@@ -1,4 +1,4 @@
-package com.broncos.gerrymandering.gerrymandering;
+package com.broncos.gerrymandering;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package com.broncos.gerrymandering.gerrymandering;
+package com.broncos.gerrymandering;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
