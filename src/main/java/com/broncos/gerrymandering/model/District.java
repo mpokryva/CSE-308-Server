@@ -1,9 +1,14 @@
 package com.broncos.gerrymandering.model;
 
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
+import org.json.JSONObject;
+import org.locationtech.jts.geom.Geometry;
+import org.wololo.jts2geojson.GeoJSONReader;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -25,17 +30,31 @@ public class District implements Serializable {
     @Column(name = "BOUNDARY")
     @Type(type = "text")
     private String boundary;
+    private transient Geometry geometry;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "REPRESENTATIVE_ID")
     private Representative representative;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "district")
     private Set<Precinct> precincts;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "district")
+    @MapKey(name = "year")
+    @Where(clause = "PRECINCT_ID IS NULL")
+    private Map<Short, Election> electionsByYear;
 
     public District() {
     }
 
     public int getDistrictId() {
         return districtId;
+    }
+
+    public Geometry getGeometry() {
+        if (geometry == null) {
+            GeoJSONReader reader = new GeoJSONReader();
+            JSONObject json = new JSONObject(boundary);
+            geometry = reader.read(json.getJSONObject("geometry").toString());
+        }
+        return geometry;
     }
 
     @Override
@@ -47,12 +66,17 @@ public class District implements Serializable {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("broncos");
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
-        District d = em.find(District.class, 165);
-        System.out.println(d);
+        District d = em.find(District.class, 169);
         em.getTransaction().commit();
-        for (Precinct precinct : d.precincts) {
-            System.out.println(precinct);
-        }
+        System.out.println(d);
+        System.out.println(d.getGeometry());
+//        for (Precinct precinct : d.precincts) {
+//            System.out.println(precinct);
+//        }
+//        for (Election election : d.electionsByYear.values()) {
+//            System.out.println(election.getDemocratVotes());
+//            System.out.println(election.getYear());
+//        }
     }
 
 }

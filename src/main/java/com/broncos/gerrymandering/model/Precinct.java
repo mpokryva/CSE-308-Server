@@ -1,6 +1,9 @@
 package com.broncos.gerrymandering.model;
 
 import org.hibernate.annotations.Type;
+import org.json.JSONObject;
+import org.locationtech.jts.geom.Geometry;
+import org.wololo.jts2geojson.GeoJSONReader;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -28,6 +31,7 @@ public class Precinct implements Serializable {
     @Column(name = "BOUNDARY")
     @Type(type = "text")
     private String boundary;
+    private transient Geometry geometry;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "PRECINCT_NEIGHBOR",
             joinColumns = @JoinColumn(name = "PRECINCT_ID", referencedColumnName = "ID"),
@@ -37,9 +41,17 @@ public class Precinct implements Serializable {
     @MapKey(name = "year")
     private Map<Short, Election> electionsByYear;
 
-
     public Precinct() {
 
+    }
+
+    public Geometry getGeometry() {
+        if (geometry == null) {
+            GeoJSONReader reader = new GeoJSONReader();
+            JSONObject json = new JSONObject(boundary);
+            geometry = reader.read(json.getJSONObject("geometry").toString());
+        }
+        return geometry;
     }
 
     @Override
@@ -54,13 +66,14 @@ public class Precinct implements Serializable {
         Precinct p = em.find(Precinct.class, 1639);
         em.getTransaction().commit();
         System.out.println(p);
-        for (Precinct neighbor : p.neighbors) {
-            System.out.println(neighbor);
-        }
-        for (Election election : p.electionsByYear.values()) {
-            System.out.println(election.getDemocratVotes());
-            System.out.println(election.getYear());
-        }
+        System.out.println(p.boundary);
+//        for (Precinct neighbor : p.neighbors) {
+//            System.out.println(neighbor);
+//        }
+//        for (Election election : p.electionsByYear.values()) {
+//            System.out.println(election.getDemocratVotes());
+//            System.out.println(election.getYear());
+//        }
     }
 
 }

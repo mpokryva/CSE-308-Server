@@ -35,6 +35,7 @@ public class JSONParser {
         JSONObject json = parser.getJsonFromFile(NY_PRECINCTS_GEO_FILE);
         final String geoid = "36001263";
         String geoJson = json.getJSONObject(geoid).getJSONObject("geometry").toString();
+        System.out.println(geoJson);
         Geometry geometry = parser.geoJsonToGeometry(geoJson);
         System.out.println(geometry);
 
