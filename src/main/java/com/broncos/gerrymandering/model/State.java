@@ -1,9 +1,8 @@
 package com.broncos.gerrymandering.model;
 
-import com.broncos.gerrymandering.spring.DefaultEntityManager;
+import com.broncos.gerrymandering.util.DefaultEntityManager;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
-import org.json.JSONObject;
 import org.locationtech.jts.geom.Geometry;
 import org.wololo.jts2geojson.GeoJSONReader;
 
@@ -28,10 +27,10 @@ public class State implements Serializable {
     @Column(name = "CONSTITUTION_TEXT")
     @Type(type = "text")
     private String constitutionText;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "state")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "state", fetch = FetchType.LAZY)
     @MapKey(name = "districtId")
     private Map<Integer, District> districtById;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "state")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "state", fetch = FetchType.LAZY)
     @MapKey(name = "year")
     @Where(clause = "PRECINCT_ID IS NULL AND DISTRICT_ID IS NULL")
     private Map<Short, Election> electionByYear;

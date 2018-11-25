@@ -45,6 +45,10 @@ public class Election implements Serializable {
         return year;
     }
 
+    public int getVotingAgePopulation() {
+        return votingAgePopulation;
+    }
+
     public static void main(String[] args) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("broncos");
         EntityManager em = emf.createEntityManager();

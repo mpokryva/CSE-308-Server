@@ -34,10 +34,10 @@ public class District implements Serializable {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "REPRESENTATIVE_ID")
     private Representative representative;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "district")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "district", fetch = FetchType.LAZY)
     @MapKey(name = "precinctId")
     private Map<Integer, Precinct> precinctById;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "district")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "district", fetch = FetchType.LAZY)
     @MapKey(name = "year")
     @Where(clause = "PRECINCT_ID IS NULL")
     private Map<Short, Election> electionByYear;

@@ -4,7 +4,6 @@ import com.broncos.gerrymandering.model.District;
 import com.broncos.gerrymandering.model.Precinct;
 import com.broncos.gerrymandering.model.State;
 import com.broncos.gerrymandering.model.StateCode;
-import com.broncos.gerrymandering.spring.DefaultEntityManager;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;

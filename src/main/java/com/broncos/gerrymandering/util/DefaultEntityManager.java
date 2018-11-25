@@ -1,4 +1,4 @@
-package com.broncos.gerrymandering.spring;
+package com.broncos.gerrymandering.util;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

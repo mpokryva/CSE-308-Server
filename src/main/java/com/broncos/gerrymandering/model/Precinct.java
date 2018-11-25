@@ -32,17 +32,21 @@ public class Precinct implements Serializable {
     @Type(type = "text")
     private String boundary;
     private transient Geometry geometry;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "PRECINCT_NEIGHBOR",
             joinColumns = @JoinColumn(name = "PRECINCT_ID", referencedColumnName = "ID"),
             inverseJoinColumns = @JoinColumn(name = "NEIGHBOR_ID", referencedColumnName = "ID"))
     private Set<Precinct> neighbors;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "precinct")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "precinct", fetch = FetchType.LAZY)
     @MapKey(name = "year")
     private Map<Short, Election> electionByYear;
 
     public Precinct() {
 
+    }
+
+    public int getPrecinctId() {
+        return precinctId;
     }
 
     public Geometry getGeometry() {
@@ -51,6 +55,14 @@ public class Precinct implements Serializable {
             geometry = reader.read(boundary);
         }
         return geometry;
+    }
+
+    public String getBoundary() {
+        return boundary;
+    }
+
+    public Map<Short, Election> getElectionByYear() {
+        return electionByYear;
     }
 
     @Override
