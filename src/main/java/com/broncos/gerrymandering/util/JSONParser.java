@@ -1,4 +1,4 @@
-package com.broncos.gerrymandering;
+package com.broncos.gerrymandering.util;
 
 import org.json.JSONObject;
 import org.locationtech.jts.geom.Geometry;

@@ -1,5 +1,6 @@
-package com.broncos.gerrymandering;
+package com.broncos.gerrymandering.controller;
 
+import com.broncos.gerrymandering.util.JSONParser;
 import org.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,11 +19,6 @@ public class Controller {
     private static final String PROPERTIES_KEY = "properties";
     private static final String DISTRICT_ID_KEY = "district_id";
     private JSONParser jsonParser = new JSONParser();
-
-    @RequestMapping("/greeting")
-    public String greeting(@RequestParam(value = "name") String name) {
-        return "Hello " + name;
-    }
 
     @RequestMapping(value = "/precinct-info",
             method = RequestMethod.GET,

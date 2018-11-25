@@ -1,9 +1,8 @@
 package com.broncos.gerrymandering.model;
 
-import org.hibernate.Hibernate;
+import com.broncos.gerrymandering.spring.DefaultEntityManager;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
-import org.hibernate.type.TextType;
 import org.json.JSONObject;
 import org.locationtech.jts.geom.Geometry;
 import org.wololo.jts2geojson.GeoJSONReader;
@@ -11,7 +10,6 @@ import org.wololo.jts2geojson.GeoJSONReader;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Set;
 
 @Entity(name = "STATE")
 public class State implements Serializable {
@@ -19,7 +17,8 @@ public class State implements Serializable {
     @GeneratedValue
     private int id;
     @Column(name = "STATE_CODE", columnDefinition = "char")
-    private String stateCode;
+    @Enumerated(EnumType.STRING)
+    private StateCode stateCode;
     @Column(name = "NAME")
     private String name;
     @Column(name = "BOUNDARY")
@@ -30,11 +29,12 @@ public class State implements Serializable {
     @Type(type = "text")
     private String constitutionText;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "state")
-    private Set<District> districts;
+    @MapKey(name = "districtId")
+    private Map<Integer, District> districtById;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "state")
     @MapKey(name = "year")
     @Where(clause = "PRECINCT_ID IS NULL AND DISTRICT_ID IS NULL")
-    private Map<Short, Election> electionsByYear;
+    private Map<Short, Election> electionByYear;
 
     public State() {
     }
@@ -46,10 +46,13 @@ public class State implements Serializable {
     public Geometry getGeometry() {
         if (geometry == null) {
             GeoJSONReader reader = new GeoJSONReader();
-            JSONObject json = new JSONObject(boundary);
-            geometry = reader.read(json.getJSONObject("geometry").toString());
+            geometry = reader.read(boundary);
         }
         return geometry;
+    }
+
+    public Map<Integer, District> getDistrictById() {
+        return districtById;
     }
 
     @Override
@@ -58,16 +61,13 @@ public class State implements Serializable {
     }
 
     public static void main(String[] args) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("broncos");
-        EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
+        EntityManager em = new DefaultEntityManager().getDefaultEntityManager();
         State s1 = em.find(State.class, 36);
-        em.getTransaction().commit();
         System.out.println(s1);
-        for (District d : s1.districts) {
+        for (District d : s1.districtById.values()) {
             System.out.println(d.getDistrictId());
         }
-        for (Election election : s1.electionsByYear.values()) {
+        for (Election election : s1.electionByYear.values()) {
             System.out.println(election.getDemocratVotes());
             System.out.println(election.getYear());
         }

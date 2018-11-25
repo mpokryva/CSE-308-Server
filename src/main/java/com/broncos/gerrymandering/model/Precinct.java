@@ -39,7 +39,7 @@ public class Precinct implements Serializable {
     private Set<Precinct> neighbors;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "precinct")
     @MapKey(name = "year")
-    private Map<Short, Election> electionsByYear;
+    private Map<Short, Election> electionByYear;
 
     public Precinct() {
 
@@ -48,8 +48,7 @@ public class Precinct implements Serializable {
     public Geometry getGeometry() {
         if (geometry == null) {
             GeoJSONReader reader = new GeoJSONReader();
-            JSONObject json = new JSONObject(boundary);
-            geometry = reader.read(json.getJSONObject("geometry").toString());
+            geometry = reader.read(boundary);
         }
         return geometry;
     }
@@ -62,18 +61,9 @@ public class Precinct implements Serializable {
     public static void main(String[] args) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("broncos");
         EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
         Precinct p = em.find(Precinct.class, 1639);
-        em.getTransaction().commit();
         System.out.println(p);
         System.out.println(p.boundary);
-//        for (Precinct neighbor : p.neighbors) {
-//            System.out.println(neighbor);
-//        }
-//        for (Election election : p.electionsByYear.values()) {
-//            System.out.println(election.getDemocratVotes());
-//            System.out.println(election.getYear());
-//        }
     }
 
 }

@@ -35,11 +35,12 @@ public class District implements Serializable {
     @JoinColumn(name = "REPRESENTATIVE_ID")
     private Representative representative;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "district")
-    private Set<Precinct> precincts;
+    @MapKey(name = "precinctId")
+    private Map<Integer, Precinct> precinctById;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "district")
     @MapKey(name = "year")
     @Where(clause = "PRECINCT_ID IS NULL")
-    private Map<Short, Election> electionsByYear;
+    private Map<Short, Election> electionByYear;
 
     public District() {
     }
@@ -51,10 +52,13 @@ public class District implements Serializable {
     public Geometry getGeometry() {
         if (geometry == null) {
             GeoJSONReader reader = new GeoJSONReader();
-            JSONObject json = new JSONObject(boundary);
-            geometry = reader.read(json.getJSONObject("geometry").toString());
+            geometry = reader.read(boundary);
         }
         return geometry;
+    }
+
+    public Map<Integer, Precinct> getPrecinctById() {
+        return precinctById;
     }
 
     @Override
@@ -65,15 +69,13 @@ public class District implements Serializable {
     public static void main(String[] args) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("broncos");
         EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
-        District d = em.find(District.class, 169);
-        em.getTransaction().commit();
-        System.out.println(d);
+        District d = em.find(District.class, 5);
+        System.out.println(d.boundary);
         System.out.println(d.getGeometry());
-//        for (Precinct precinct : d.precincts) {
+//        for (Precinct precinct : d.precinctById) {
 //            System.out.println(precinct);
 //        }
-//        for (Election election : d.electionsByYear.values()) {
+//        for (Election election : d.electionByYear.values()) {
 //            System.out.println(election.getDemocratVotes());
 //            System.out.println(election.getYear());
 //        }
