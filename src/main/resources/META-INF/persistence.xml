@@ -10,6 +10,7 @@
         <class>com.broncos.gerrymandering.model.Representative</class>
         <class>com.broncos.gerrymandering.model.Precinct</class>
         <class>com.broncos.gerrymandering.model.Election</class>
+        <class>com.broncos.gerrymandering.model.Account</class>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://mysql4.cs.stonybrook.edu:3306/broncos"/>
