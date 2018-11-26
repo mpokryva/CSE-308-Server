@@ -2,15 +2,18 @@ package com.broncos.gerrymandering.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 import org.json.JSONPropertyIgnore;
 import org.locationtech.jts.geom.Geometry;
+import org.springframework.data.annotation.AccessType;
 import org.wololo.jts2geojson.GeoJSONReader;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by mpokr on 11/23/2018.
@@ -25,7 +28,7 @@ public class District implements Serializable {
     private Integer districtId;
     @Column(name = "POPULATION")
     private Integer population;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "STATE_ID")
     @JsonIgnore
     private State state;
@@ -39,7 +42,11 @@ public class District implements Serializable {
     private Representative representative;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "district", fetch = FetchType.LAZY)
     @MapKey(name = "precinctId")
+    @LazyCollection(LazyCollectionOption.EXTRA)
     private Map<Integer, Precinct> precinctById;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "district", fetch = FetchType.LAZY)
+    @Column(nullable = false)
+    private Set<Precinct> precincts;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "district", fetch = FetchType.LAZY)
     @MapKey(name = "year")
     @Where(clause = "PRECINCT_ID IS NULL")
@@ -70,6 +77,10 @@ public class District implements Serializable {
 
     public String getBoundary() {
         return boundary;
+    }
+
+    public Set<Precinct> getPrecincts() {
+        return precincts;
     }
 
     @Override

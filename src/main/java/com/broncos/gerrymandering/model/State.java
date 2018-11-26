@@ -2,6 +2,8 @@ package com.broncos.gerrymandering.model;
 
 import com.broncos.gerrymandering.util.DefaultEntityManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
 import org.locationtech.jts.geom.Geometry;
@@ -31,6 +33,7 @@ public class State implements Serializable {
     private String constitutionText;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "state", fetch = FetchType.LAZY)
     @MapKey(name = "districtId")
+    @LazyCollection(LazyCollectionOption.EXTRA)
     private Map<Integer, District> districtById;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "state", fetch = FetchType.LAZY)
     @MapKey(name = "year")
@@ -68,19 +71,5 @@ public class State implements Serializable {
     public String toString() {
         return String.format("[%d]: %s", id, name);
     }
-
-    public static void main(String[] args) {
-        EntityManager em = new DefaultEntityManager().getDefaultEntityManager();
-        State s1 = em.find(State.class, 36);
-        System.out.println(s1);
-        for (District d : s1.districtById.values()) {
-            System.out.println(d.getDistrictId());
-        }
-        for (Election election : s1.electionByYear.values()) {
-            System.out.println(election.getDemocratVotes());
-            System.out.println(election.getYear());
-        }
-    }
-
 
 }

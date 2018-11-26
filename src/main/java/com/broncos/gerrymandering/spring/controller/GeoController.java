@@ -44,8 +44,6 @@ public class GeoController {
         return boundaryByDistrictId;
     }
 
-
-
     @RequestMapping(value = "/precinct-geo",
             method = RequestMethod.GET,
             params = {"districtId", "stateCode"},
@@ -56,9 +54,9 @@ public class GeoController {
         if (district == null) {
             return null;
         }
-        Map<Integer, Precinct> precinctById = district.getPrecinctById();
+        Collection<Precinct> precincts = district.getPrecincts();
         Map<Integer, String> boundaryByPrecinctId = new HashMap<>();
-        for (Precinct precinct : precinctById.values()) {
+        for (Precinct precinct : precincts) {
             boundaryByPrecinctId.put(precinct.getPrecinctId(), precinct.getBoundary());
         }
         return boundaryByPrecinctId;

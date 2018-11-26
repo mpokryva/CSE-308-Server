@@ -20,12 +20,12 @@ public class Precinct implements Serializable {
     private Integer id;
     @Column(name = "PRECINCT_ID")
     private Integer precinctId;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "DISTRICT_ID")
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "DISTRICT_ID", nullable = false)
     @JsonIgnore
     private District district;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "STATE_ID")
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "STATE_ID", nullable = false)
     @JsonIgnore
     private State state;
     @Column(name = "POPULATION")
