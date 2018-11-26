@@ -1,6 +1,7 @@
 package com.broncos.gerrymandering.model;
 
 import com.broncos.gerrymandering.util.DefaultEntityManager;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
 import org.locationtech.jts.geom.Geometry;
@@ -14,7 +15,7 @@ import java.util.Map;
 public class State implements Serializable {
     @Id
     @GeneratedValue
-    private int id;
+    private Integer id;
     @Column(name = "STATE_CODE", columnDefinition = "char")
     @Enumerated(EnumType.STRING)
     private StateCode stateCode;
@@ -23,6 +24,7 @@ public class State implements Serializable {
     @Column(name = "BOUNDARY")
     @Type(type = "text")
     private String boundary;
+    @JsonIgnore
     private transient Geometry geometry;
     @Column(name = "CONSTITUTION_TEXT")
     @Type(type = "text")
@@ -52,6 +54,14 @@ public class State implements Serializable {
 
     public Map<Integer, District> getDistrictById() {
         return districtById;
+    }
+
+    public Map<Short, Election> getElectionByYear() {
+        return electionByYear;
+    }
+
+    public String getBoundary() {
+        return boundary;
     }
 
     @Override

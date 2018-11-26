@@ -36,7 +36,7 @@ public class StateManager {
             EntityManager em = DefaultEntityManager.getDefaultEntityManager();
             final String qText = "SELECT s FROM STATE s WHERE s.stateCode = :stateCode";
             Query query = em.createQuery(qText);
-            query.setParameter("stateCode", stateCode);
+            query.setParameter("stateCode", stateCode).setMaxResults(1);
             List<State> results = query.getResultList();
             if (results != null && results.size() > 0) {
                 state = results.get(0);
@@ -46,22 +46,38 @@ public class StateManager {
         return state;
     }
 
-    public District getDistrict(int districtId, StateCode stateCode) {
-        State state = getState(stateCode);
-        if (state == null) {
+    public District getDistrict(Integer districtId, StateCode stateCode) {
+        EntityManager em = DefaultEntityManager.getDefaultEntityManager();
+        final String qText = "SELECT d FROM DISTRICT d WHERE d.districtId = :districtId and " +
+                "d.state.stateCode = :stateCode";
+        Query query = em.createQuery(qText);
+        query.setParameter("districtId", districtId)
+                .setParameter("stateCode", stateCode)
+                .setMaxResults(1);
+        List<District> results = query.getResultList();
+        if (results == null || results.size() == 0) {
             return null;
+        } else {
+            return results.get(0);
         }
-        Map<Integer, District> districtById = state.getDistrictById();
-        return districtById.get(districtId);
     }
 
-    public Precinct getPrecinct(int precinctId, int districtId, StateCode stateCode) {
-        District district = getDistrict(districtId, stateCode);
-        if (district == null) {
+    public Precinct getPrecinct(Integer precinctId, Integer districtId, StateCode stateCode) {
+        EntityManager em = DefaultEntityManager.getDefaultEntityManager();
+        final String qText = "SELECT p FROM PRECINCT p WHERE p.precinctId = :precinctId and " +
+                "p.district.districtId = :districtId and " +
+                "p.state.stateCode = :stateCode";
+        Query query = em.createQuery(qText);
+        query.setParameter("precinctId", precinctId)
+                .setParameter("districtId", districtId)
+                .setParameter("stateCode", stateCode)
+                .setMaxResults(1);
+        List<Precinct> results = query.getResultList();
+        if (results == null || results.size() == 0) {
             return null;
+        } else {
+            return results.get(0);
         }
-        Map<Integer, Precinct> precinctById = district.getPrecinctById();
-        return precinctById.get(precinctId);
     }
 
 }

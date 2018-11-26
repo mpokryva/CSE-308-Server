@@ -11,13 +11,13 @@ public class Election implements Serializable {
 
     @Id
     @GeneratedValue
-    private int id;
+    private Integer id;
     @Column(name = "VOTING_AGE_POPULATION")
-    private int votingAgePopulation;
+    private Integer votingAgePopulation;
     @Column(name = "REP_VOTES")
-    private int republicanVotes;
+    private Integer republicanVotes;
     @Column(name = "DEM_VOTES")
-    private int democratVotes;
+    private Integer democratVotes;
     @Column(name = "YEAR")
     private short year;
     @OneToOne(cascade = CascadeType.ALL)
@@ -33,11 +33,11 @@ public class Election implements Serializable {
     public Election() {
     }
 
-    public int getRepublicanVotes() {
+    public Integer getRepublicanVotes() {
         return republicanVotes;
     }
 
-    public int getDemocratVotes() {
+    public Integer getDemocratVotes() {
         return democratVotes;
     }
 
@@ -45,7 +45,7 @@ public class Election implements Serializable {
         return year;
     }
 
-    public int getVotingAgePopulation() {
+    public Integer getVotingAgePopulation() {
         return votingAgePopulation;
     }
 

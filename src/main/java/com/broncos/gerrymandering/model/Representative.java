@@ -11,7 +11,7 @@ public class Representative implements Serializable  {
 
     @Id
     @GeneratedValue
-    private int id;
+    private Integer id;
     @Column(name = "NAME")
     private String name;
     @Enumerated(EnumType.STRING)
