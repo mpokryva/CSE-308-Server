@@ -22,7 +22,7 @@ public class GeoController {
             method = RequestMethod.GET,
             params = {"districtId", "stateCode"},
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<Integer, String> getPrecinctGeo(int districtId, StateCode stateCode) {
+    public Map<Integer, String> getPrecinctGeo(Integer districtId, StateCode stateCode) {
         StateManager sm = StateManager.getInstance();
         District district = sm.getDistrict(districtId, stateCode);
         if (district == null) {

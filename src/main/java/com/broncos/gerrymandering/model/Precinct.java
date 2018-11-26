@@ -1,7 +1,7 @@
 package com.broncos.gerrymandering.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Type;
-import org.json.JSONObject;
 import org.locationtech.jts.geom.Geometry;
 import org.wololo.jts2geojson.GeoJSONReader;
 
@@ -17,20 +17,23 @@ import java.util.Set;
 public class Precinct implements Serializable {
     @Id
     @GeneratedValue
-    private int id;
+    private Integer id;
     @Column(name = "PRECINCT_ID")
-    private int precinctId;
+    private Integer precinctId;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "DISTRICT_ID")
+    @JsonIgnore
     private District district;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "STATE_ID")
+    @JsonIgnore
     private State state;
     @Column(name = "POPULATION")
-    private int population;
+    private Integer population;
     @Column(name = "BOUNDARY")
     @Type(type = "text")
     private String boundary;
+    @JsonIgnore
     private transient Geometry geometry;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "PRECINCT_NEIGHBOR",
@@ -45,7 +48,7 @@ public class Precinct implements Serializable {
 
     }
 
-    public int getPrecinctId() {
+    public Integer getPrecinctId() {
         return precinctId;
     }
 

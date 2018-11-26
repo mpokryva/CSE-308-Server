@@ -1,15 +1,16 @@
 package com.broncos.gerrymandering.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
-import org.json.JSONObject;
+import org.json.JSONPropertyIgnore;
 import org.locationtech.jts.geom.Geometry;
 import org.wololo.jts2geojson.GeoJSONReader;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by mpokr on 11/23/2018.
@@ -19,17 +20,19 @@ public class District implements Serializable {
 
     @Id
     @GeneratedValue
-    private int id;
+    private Integer id;
     @Column(name = "DISTRICT_ID")
-    private int districtId;
+    private Integer districtId;
     @Column(name = "POPULATION")
-    private int population;
+    private Integer population;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "STATE_ID")
+    @JsonIgnore
     private State state;
     @Column(name = "BOUNDARY")
     @Type(type = "text")
     private String boundary;
+    @JsonIgnore
     private transient Geometry geometry;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "REPRESENTATIVE_ID")
@@ -45,7 +48,7 @@ public class District implements Serializable {
     public District() {
     }
 
-    public int getDistrictId() {
+    public Integer getDistrictId() {
         return districtId;
     }
 
@@ -59,6 +62,10 @@ public class District implements Serializable {
 
     public Map<Integer, Precinct> getPrecinctById() {
         return precinctById;
+    }
+
+    public Map<Short, Election> getElectionByYear() {
+        return electionByYear;
     }
 
     @Override
