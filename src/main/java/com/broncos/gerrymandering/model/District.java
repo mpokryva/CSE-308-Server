@@ -25,7 +25,7 @@ public class District implements Serializable {
     private Integer districtId;
     @Column(name = "POPULATION")
     private Integer population;
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "STATE_ID")
     @JsonIgnore
     private State state;
@@ -66,6 +66,10 @@ public class District implements Serializable {
 
     public Map<Short, Election> getElectionByYear() {
         return electionByYear;
+    }
+
+    public String getBoundary() {
+        return boundary;
     }
 
     @Override

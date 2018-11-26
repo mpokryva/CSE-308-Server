@@ -60,6 +60,10 @@ public class State implements Serializable {
         return electionByYear;
     }
 
+    public String getBoundary() {
+        return boundary;
+    }
+
     @Override
     public String toString() {
         return String.format("[%d]: %s", id, name);
