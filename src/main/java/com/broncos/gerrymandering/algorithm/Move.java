@@ -27,6 +27,10 @@ public class Move {
 
     public void make() {
         destination.addPrecinct(precinct);
+        objFuncVal = destination.getState().getObjFuncVal();
+        if(source != null) {
+            //TODO: for simulated annealing
+        }
     }
 
     public void revert() {
@@ -37,11 +41,11 @@ public class Move {
         StateManager sm = StateManager.getInstance();
         //74496        73568
         //district id = 213
-        District dest = sm.getDistrict(213, StateCode.NM);
-        Precinct p = sm.getPrecinct(73568, 211, StateCode.NM);
-        System.out.println(dest);
+        District dest = sm.getDistrict(3, StateCode.NM);
+        Precinct p = sm.getPrecinct(350575, 1, StateCode.NM);
+        System.out.println(dest.getBoundary());
         Move m = new Move(p, dest, null);
         m.make();
-
+        System.out.println(dest.getBoundary());
     }
 }

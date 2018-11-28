@@ -57,4 +57,16 @@ public class Election implements Serializable {
         System.out.println(e.precinct);
     }
 
+    public void setVotingAgePopulation(Integer votingAgePopulation) {
+        this.votingAgePopulation = votingAgePopulation;
+    }
+
+    public void setRepublicanVotes(Integer republicanVotes) {
+
+        this.republicanVotes = republicanVotes;
+    }
+
+    public void setDemocratVotes(Integer democratVotes) {
+        this.democratVotes = democratVotes;
+    }
 }

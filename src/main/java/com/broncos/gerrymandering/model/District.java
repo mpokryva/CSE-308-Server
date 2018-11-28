@@ -7,6 +7,7 @@ import org.json.JSONPropertyIgnore;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.data.annotation.AccessType;
 import org.wololo.jts2geojson.GeoJSONReader;
+import org.wololo.jts2geojson.GeoJSONWriter;
 import com.broncos.gerrymandering.model.Party;
 import javax.persistence.*;
 import javax.persistence.CascadeType;
@@ -20,6 +21,7 @@ import java.util.Set;
  */
 @Entity(name = "DISTRICT")
 public class District implements Serializable {
+    private static final Short CURRENT_YEAR = 2010;
 
     @Id
     @GeneratedValue
@@ -52,10 +54,7 @@ public class District implements Serializable {
     @Where(clause = "PRECINCT_ID IS NULL")
     private Map<Short, Election> electionByYear;
     private transient Set<Precinct> borderPrecincts;
-    private transient Map<Party, Integer> wastedVotes;
-    private transient double populationEquality;
-    private transient double compactness;
-    private transient double partisanFairness;
+    private transient Map<Measure, Double> valByMeasure;
 
     public District() {
     }
@@ -71,6 +70,8 @@ public class District implements Serializable {
         }
         return geometry;
     }
+
+    public State getState() { return state; }
 
     public Map<Integer, Precinct> getPrecinctById() {
         return precinctById;
@@ -93,13 +94,31 @@ public class District implements Serializable {
         return String.format("[%d]: %s", id, state.getName());
     }
 
+    public void updateBorderPrecincts() {
+
+    }
+
+    public void updateMeasures() {
+
+    }
+
     public void addPrecinct(Precinct precinct) {
         precincts.add(precinct);
         //check if geometry is MultiPolygon
         geometry = getGeometry().union(precinct.getGeometry());
-        //update border precincts
-        //update measures
-
+        GeoJSONWriter writer = new GeoJSONWriter();
+        boundary = writer.write(geometry).toString();
+        Election distElection = electionByYear.get(CURRENT_YEAR);
+        Election precElection = precinct.getElectionByYear().get(CURRENT_YEAR);
+        distElection.setDemocratVotes(
+                distElection.getDemocratVotes() + precElection.getDemocratVotes());
+        distElection.setRepublicanVotes(
+                distElection.getRepublicanVotes() + precElection.getRepublicanVotes());
+        distElection.setVotingAgePopulation(
+                distElection.getVotingAgePopulation() + precElection.getVotingAgePopulation());
+        population += precElection.getVotingAgePopulation(); //TODO: DO SOMETHING ABOUT NAMING
+        updateBorderPrecincts();
+        updateMeasures();
     }
 
     public static void main(String[] args) {
