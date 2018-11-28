@@ -1,6 +1,6 @@
 package com.broncos.gerrymandering.model;
 
-import com.broncos.gerrymandering.util.DefaultEntityManager;
+import com.broncos.gerrymandering.util.DefaultEntityManagerFactory;
 
 import java.security.MessageDigest;
 import java.util.List;
@@ -44,7 +44,7 @@ public class Account implements Serializable{
     }
 
     public static Account getByUsername(String username) {
-        EntityManager em = DefaultEntityManager.getDefaultEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
         final String qText = "SELECT a FROM ACCOUNT a WHERE a.username = :username";
         Query query = em.createQuery(qText);
         query.setParameter("username", username);
@@ -79,7 +79,7 @@ public class Account implements Serializable{
     }
 
     public static void main(String[] args) {
-        EntityManager em = DefaultEntityManager.getDefaultEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
         em.getTransaction().begin();
         Account a = getByUsername("test2");
         System.out.println(a.checkPassword("1234"));
