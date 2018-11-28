@@ -7,7 +7,7 @@ import org.json.JSONPropertyIgnore;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.data.annotation.AccessType;
 import org.wololo.jts2geojson.GeoJSONReader;
-
+import com.broncos.gerrymandering.model.Party;
 import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -51,6 +51,11 @@ public class District implements Serializable {
     @MapKey(name = "year")
     @Where(clause = "PRECINCT_ID IS NULL")
     private Map<Short, Election> electionByYear;
+    private transient Set<Precinct> borderPrecincts;
+    private transient Map<Party, Integer> wastedVotes;
+    private transient double populationEquality;
+    private transient double compactness;
+    private transient double partisanFairness;
 
     public District() {
     }
@@ -86,6 +91,15 @@ public class District implements Serializable {
     @Override
     public String toString() {
         return String.format("[%d]: %s", id, state.getName());
+    }
+
+    public void addPrecinct(Precinct precinct) {
+        precincts.add(precinct);
+        //check if geometry is MultiPolygon
+        geometry = getGeometry().union(precinct.getGeometry());
+        //update border precincts
+        //update measures
+
     }
 
     public static void main(String[] args) {

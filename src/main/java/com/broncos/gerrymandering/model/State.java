@@ -67,6 +67,10 @@ public class State implements Serializable {
         return boundary;
     }
 
+    public double getObjFuncVal() {
+        return 1.0;
+    }
+
     @Override
     public String toString() {
         return String.format("[%d]: %s", id, name);
