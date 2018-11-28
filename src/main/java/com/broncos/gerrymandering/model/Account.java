@@ -43,6 +43,10 @@ public class Account implements Serializable{
         this.username = username;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
     public static Account getByUsername(String username) {
         EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
         final String qText = "SELECT a FROM ACCOUNT a WHERE a.username = :username";
@@ -77,6 +81,7 @@ public class Account implements Serializable{
                 ", username='" + username + '\'' +
                 '}';
     }
+
 
     public static void main(String[] args) {
         EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
