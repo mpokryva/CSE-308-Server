@@ -1,11 +1,13 @@
 package com.broncos.gerrymandering.spring.controller;
 
 import com.broncos.gerrymandering.model.Account;
-import com.broncos.gerrymandering.util.DefaultEntityManager;
+import com.broncos.gerrymandering.util.DefaultEntityManagerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import javax.persistence.EntityManager;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +28,7 @@ public class AccountController {
     @ResponseStatus(value = HttpStatus.OK)
     public ResponseEntity register(@RequestBody Map<String, String> payload, HttpServletResponse resp) {
         System.out.println(username);
-        EntityManager em = DefaultEntityManager.getDefaultEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
         em.getTransaction().begin();
         Account account = new Account(payload.get("email"), payload.get("password"), payload.get("username"));
         try {

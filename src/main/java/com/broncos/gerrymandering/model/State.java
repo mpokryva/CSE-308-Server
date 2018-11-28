@@ -1,6 +1,5 @@
 package com.broncos.gerrymandering.model;
 
-import com.broncos.gerrymandering.util.DefaultEntityManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;

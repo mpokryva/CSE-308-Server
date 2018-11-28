@@ -39,7 +39,7 @@ public class District implements Serializable {
     private String boundary;
     @JsonIgnore
     private transient Geometry geometry;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "REPRESENTATIVE_ID")
     private Representative representative;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "district", fetch = FetchType.LAZY)
