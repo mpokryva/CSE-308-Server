@@ -4,6 +4,10 @@ import com.broncos.gerrymandering.model.District;
 import com.broncos.gerrymandering.model.Precinct;
 import com.broncos.gerrymandering.model.State;
 import com.broncos.gerrymandering.model.StateCode;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -21,9 +25,9 @@ public class StateManager {
     private static StateManager sm;
 
     private StateManager() {
-        statesByCode = new HashMap<>();
         idByStateCode = new HashMap<>();
-        EntityManager em = DefaultEntityManager.getDefaultEntityManager();
+        statesByCode = new HashMap<>();
+        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
         final String qText = "SELECT s.id, s.stateCode FROM STATE s";
         Query query = em.createQuery(qText);
         List<Object[]> results = query.getResultList();
@@ -50,7 +54,7 @@ public class StateManager {
     public State getState(StateCode stateCode) {
         State state = statesByCode.get(stateCode);
         if (state == null) {
-            EntityManager em = DefaultEntityManager.getDefaultEntityManager();
+            EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
             final String qText = "SELECT s FROM STATE s WHERE s.id = :stateId";
             Query query = em.createQuery(qText);
             Integer stateId = idByStateCode.get(stateCode);
@@ -65,24 +69,13 @@ public class StateManager {
     }
 
     public District getDistrict(Integer districtId, StateCode stateCode) {
-        EntityManager em = DefaultEntityManager.getDefaultEntityManager();
-        final String qText = "SELECT d FROM DISTRICT d WHERE d.districtId = :districtId and " +
-                "d.state.id = :stateId";
-        Integer stateId = idByStateCode.get(stateCode);
-        Query query = em.createQuery(qText);
-        query.setParameter("districtId", districtId)
-                .setParameter("stateId", stateId)
-                .setMaxResults(1);
-        List<District> results = query.getResultList();
-        if (results == null || results.size() == 0) {
-            return null;
-        } else {
-            return results.get(0);
-        }
+        State state = getState(stateCode);
+        District district = state.getDistrictById().get(districtId);
+        return district;
     }
 
     public Precinct getPrecinct(Integer precinctId, Integer districtId, StateCode stateCode) {
-        EntityManager em = DefaultEntityManager.getDefaultEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
         final String qText = "SELECT p FROM PRECINCT p WHERE p.precinctId = :precinctId and " +
                 "p.district.districtId = :districtId and " +
                 "p.state.id = :stateId";
