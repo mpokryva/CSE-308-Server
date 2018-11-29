@@ -10,8 +10,7 @@ import org.wololo.jts2geojson.GeoJSONReader;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Entity(name = "STATE")
 public class State implements Serializable {
@@ -57,8 +56,12 @@ public class State implements Serializable {
         return geometry;
     }
 
-    public Map<Integer, District> getDistrictById() {
-        return districtById;
+    public District getDistrictById(Integer districtId) {
+        return districtById.get(districtId);
+    }
+
+    public Iterator<District> districtIterator() {
+        return districtById.values().iterator();
     }
 
     public Map<Short, Election> getElectionByYear() {
@@ -69,15 +72,35 @@ public class State implements Serializable {
         return boundary;
     }
 
+    public State clone() {
+        State state = new State();
+        state.stateCode = stateCode;
+        state.name = name;
+        state.boundary = boundary;
+        state.geometry = geometry;
+        state.constitutionText = constitutionText;
+        state.districtById = new HashMap<>();
+        state.electionByYear = electionByYear;
+        return state;
+    }
+
+    public District getRandomDistrict() {
+        Optional<District> optDistrict = districtById.values()
+                .stream()
+                .skip((int) (Math.random() * districtById.size()))
+                .findFirst();
+        return optDistrict.orElseThrow(() -> new IllegalStateException("No districts " +
+                "in state with code " + this.stateCode));
+    }
+
     public double getObjFuncVal(Map<Measure, Double> weights) {
         double objFuncVal = 0;
         double wastedVoteDifferenceTotal = 0;
         for(District district: districtById.values()) {
-            Map<Measure, Double> distMeasures = district.getValByMeasure();
             for (Measure measure: Measure.values()) {
                 switch (measure) {
                     case EFFICIENCY_GAP:
-                        wastedVoteDifferenceTotal += distMeasures.get(measure);
+                        wastedVoteDifferenceTotal += district.getValueByMeasure(measure);
                         break;
                 }
             }
@@ -85,6 +108,10 @@ public class State implements Serializable {
         int population = electionByYear.get(CURRENT_YEAR).getVotingAgePopulation();
         double effGapTerm = (Math.abs(wastedVoteDifferenceTotal) / population) * weights.get(Measure.EFFICIENCY_GAP);
         return effGapTerm;
+    }
+
+    public void addDistrict(District district) {
+        districtById.put(district.getDistrictId(), district);
     }
 
     @Override

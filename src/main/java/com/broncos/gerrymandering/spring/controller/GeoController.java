@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -39,7 +40,9 @@ public class GeoController {
         StateManager sm = StateManager.getInstance();
         State state = sm.getState(stateCode);
         Map<Integer, BoundaryWrapper> boundaryByDistrictId = new HashMap<>();
-        for (District district : state.getDistrictById().values()) {
+        Iterator<District> it = state.districtIterator();
+        while (it.hasNext()) {
+            District district = it.next();
             boundaryByDistrictId.put(district.getDistrictId(), new BoundaryWrapper(district.getBoundary()));
         }
         return boundaryByDistrictId;
@@ -55,9 +58,10 @@ public class GeoController {
         if (district == null) {
             return null;
         }
-        Collection<Precinct> precincts = district.getPrecincts();
+        Iterator<Precinct> it = district.precinctIterator();
         Map<Integer, BoundaryWrapper> boundaryByPrecinctId = new HashMap<>();
-        for (Precinct precinct : precincts) {
+        while (it.hasNext()) {
+            Precinct precinct = it.next();
             boundaryByPrecinctId.put(precinct.getPrecinctId(), new BoundaryWrapper(precinct.getBoundary()));
         }
         return boundaryByPrecinctId;

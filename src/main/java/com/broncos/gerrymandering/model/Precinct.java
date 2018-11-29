@@ -8,6 +8,7 @@ import org.wololo.jts2geojson.GeoJSONReader;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -66,6 +67,13 @@ public class Precinct implements Serializable {
 
     public Map<Short, Election> getElectionByYear() {
         return electionByYear;
+    }
+
+    public Precinct getRandomNeighbor() {
+        Optional<Precinct> optPrecinct = neighbors.stream()
+                .skip((int) (Math.random() * neighbors.size()))
+                .findFirst();
+        return optPrecinct.orElseThrow(() -> new IllegalStateException("Precinct with id " + this.precinctId + " has no neighbors."));
     }
 
     @Override

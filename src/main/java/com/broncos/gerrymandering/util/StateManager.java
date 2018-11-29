@@ -70,7 +70,7 @@ public class StateManager {
 
     public District getDistrict(Integer districtId, StateCode stateCode) {
         State state = getState(stateCode);
-        District district = state.getDistrictById().get(districtId);
+        District district = state.getDistrictById(districtId);
         return district;
     }
 
