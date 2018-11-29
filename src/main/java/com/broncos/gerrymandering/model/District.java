@@ -15,6 +15,7 @@ import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -84,6 +85,7 @@ public class District implements Serializable {
         return electionByYear;
     }
 
+
     public String getBoundary() {
         return boundary;
     }
@@ -95,6 +97,11 @@ public class District implements Serializable {
     public Set<Precinct> getBorderPrecincts() {
         if(borderPrecincts == null) updateBorderPrecincts();
         return borderPrecincts;
+    }
+
+    public Map<Measure, Double> getValByMeasure() {
+        if(valByMeasure == null) updateMeasures();
+        return valByMeasure;
     }
 
     @Override
@@ -115,7 +122,18 @@ public class District implements Serializable {
     }
 
     public void updateMeasures() {
-
+        if(valByMeasure == null) valByMeasure = new HashMap<>();
+        for(Measure measure: Measure.values()) {
+            switch (measure) {
+                case EFFICIENCY_GAP:
+                    Election currElection = electionByYear.get(CURRENT_YEAR);
+                    int wastedVotes = Math.max(currElection.getDemocratVotes(), currElection.getRepublicanVotes())
+                            - ((currElection.getDemocratVotes() + currElection.getRepublicanVotes()) / 2);
+                    int lostVotes = Math.min(currElection.getDemocratVotes(), currElection.getRepublicanVotes());
+                    valByMeasure.put(measure, Double.valueOf(wastedVotes - lostVotes));
+                    break;
+            }
+        }
 
     }
 

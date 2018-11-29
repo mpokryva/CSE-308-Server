@@ -10,10 +10,13 @@ import org.wololo.jts2geojson.GeoJSONReader;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 @Entity(name = "STATE")
 public class State implements Serializable {
+    private static final Short CURRENT_YEAR = 2010;
+
     @Id
     @GeneratedValue
     private Integer id;
@@ -66,8 +69,22 @@ public class State implements Serializable {
         return boundary;
     }
 
-    public double getObjFuncVal() {
-        return 1.0;
+    public double getObjFuncVal(Map<Measure, Double> weights) {
+        double objFuncVal = 0;
+        double wastedVoteDifferenceTotal = 0;
+        for(District district: districtById.values()) {
+            Map<Measure, Double> distMeasures = district.getValByMeasure();
+            for (Measure measure: Measure.values()) {
+                switch (measure) {
+                    case EFFICIENCY_GAP:
+                        wastedVoteDifferenceTotal += distMeasures.get(measure);
+                        break;
+                }
+            }
+        }
+        int population = electionByYear.get(CURRENT_YEAR).getVotingAgePopulation();
+        double effGapTerm = (Math.abs(wastedVoteDifferenceTotal) / population) * weights.get(Measure.EFFICIENCY_GAP);
+        return effGapTerm;
     }
 
     @Override
