@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.*;
 import org.json.JSONPropertyIgnore;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygonal;
+import org.locationtech.jts.geom.prep.PreparedPolygon;
 import org.springframework.data.annotation.AccessType;
 import org.wololo.jts2geojson.GeoJSONReader;
 import org.wololo.jts2geojson.GeoJSONWriter;
@@ -13,6 +15,7 @@ import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -89,16 +92,30 @@ public class District implements Serializable {
         return precincts;
     }
 
+    public Set<Precinct> getBorderPrecincts() {
+        if(borderPrecincts == null) updateBorderPrecincts();
+        return borderPrecincts;
+    }
+
     @Override
     public String toString() {
         return String.format("[%d]: %s", id, state.getName());
     }
 
     public void updateBorderPrecincts() {
-
+        PreparedPolygon prepDistrict = new PreparedPolygon((Polygonal)getGeometry());
+        if(borderPrecincts != null)
+            borderPrecincts.clear();
+        else
+            borderPrecincts = new HashSet<>();
+        for(Precinct precinct: precincts) {
+            if(!prepDistrict.containsProperly(precinct.getGeometry()))
+                borderPrecincts.add(precinct);
+        }
     }
 
     public void updateMeasures() {
+
 
     }
 

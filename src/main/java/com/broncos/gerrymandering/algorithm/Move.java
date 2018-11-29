@@ -8,6 +8,7 @@ import com.broncos.gerrymandering.util.StateManager;
 import org.locationtech.jts.geom.Geometry;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by kristiancharbonneau on 11/27/18.
@@ -42,10 +43,12 @@ public class Move {
         //74496        73568
         //district id = 213
         District dest = sm.getDistrict(3, StateCode.NM);
-        Precinct p = sm.getPrecinct(350575, 1, StateCode.NM);
-        System.out.println(dest.getBoundary());
-        Move m = new Move(p, dest, null);
-        m.make();
-        System.out.println(dest.getBoundary());
+//        Precinct p = sm.getPrecinct(350575, 1, StateCode.NM);
+//        Move m = new Move(p, dest, null);
+//        m.make();
+        Set<Precinct> borders = dest.getBorderPrecincts();
+        for(Precinct p: borders) {
+            System.out.println(p.getPrecinctId());
+        }
     }
 }
