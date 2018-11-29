@@ -20,6 +20,7 @@ import java.util.*;
 @Entity(name = "DISTRICT")
 public class District implements Serializable {
     private static final Short CURRENT_YEAR = 2010;
+    private static final int TWO = 2;
 
     @Id
     @GeneratedValue
@@ -120,7 +121,7 @@ public class District implements Serializable {
         return String.format("[%d]: %s", id, state.getName());
     }
 
-    public void updateBorderPrecincts() {
+    private void updateBorderPrecincts() {
         PreparedPolygon prepDistrict = new PreparedPolygon((Polygonal)getGeometry());
         if(borderPrecincts != null)
             borderPrecincts.clear();
@@ -134,16 +135,16 @@ public class District implements Serializable {
         }
     }
 
-    public void updateMeasures() {
+    private void updateMeasures() {
         if(valueByMeasure == null) valueByMeasure = new HashMap<>();
         for(Measure measure: Measure.values()) {
             switch (measure) {
                 case EFFICIENCY_GAP:
                     Election currElection = electionByYear.get(CURRENT_YEAR);
-                    int wastedVotes = Math.max(currElection.getDemocratVotes(), currElection.getRepublicanVotes())
-                            - ((currElection.getDemocratVotes() + currElection.getRepublicanVotes()) / 2);
+                    int excessVotes = Math.max(currElection.getDemocratVotes(), currElection.getRepublicanVotes())
+                            - ((currElection.getDemocratVotes() + currElection.getRepublicanVotes()) / TWO);
                     int lostVotes = Math.min(currElection.getDemocratVotes(), currElection.getRepublicanVotes());
-                    valueByMeasure.put(measure, Double.valueOf(wastedVotes - lostVotes));
+                    valueByMeasure.put(measure, (double) (excessVotes - lostVotes));
                     break;
             }
         }

@@ -20,21 +20,27 @@ import java.util.Map;
 @RestController
 public class AccountController {
 
-    @Value("${cookie.username}")
-    private String username;
+    @Value("${account.username}")
+    private String USERNAME_KEY;
+    @Value("${account.password}")
+    private String PASSWORD_KEY;
+    @Value("${account.email}")
+    private String EMAIL_KEY;
+    @Value("${zero}")
+    private int ZERO;
+
 
     @RequestMapping(value = "/register",
             method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public ResponseEntity register(@RequestBody Map<String, String> payload, HttpServletResponse resp) {
-        System.out.println(username);
         EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
         em.getTransaction().begin();
-        Account account = new Account(payload.get("email"), payload.get("password"), payload.get("username"));
+        Account account = new Account(payload.get(EMAIL_KEY), payload.get(PASSWORD_KEY), payload.get(USERNAME_KEY));
         try {
             em.persist(account);
             em.getTransaction().commit();
-            resp.addCookie(new Cookie("username", account.getUsername()));
+            resp.addCookie(new Cookie(USERNAME_KEY, account.getUsername()));
             return new ResponseEntity(HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -45,9 +51,9 @@ public class AccountController {
             method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public ResponseEntity login(@RequestBody Map<String, String> payload, HttpServletResponse resp) {
-        Account account = Account.getByUsername(payload.get("username"));
-        if (account != null && account.checkPassword(payload.get("password"))) {
-            resp.addCookie(new Cookie("username", account.getUsername()));
+        Account account = Account.getByUsername(payload.get(USERNAME_KEY));
+        if (account != null && account.checkPassword(payload.get(PASSWORD_KEY))) {
+            resp.addCookie(new Cookie(USERNAME_KEY, account.getUsername()));
             return new ResponseEntity(HttpStatus.OK);
         }else {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -60,12 +66,12 @@ public class AccountController {
     public ResponseEntity logout(@RequestBody Map<String, String> payload,
                                  HttpServletRequest req,
                                  HttpServletResponse resp) {
-        String username = payload.get("username");
+        String username = payload.get(USERNAME_KEY);
         Cookie[] cookies = req.getCookies();
         for(Cookie cookie: cookies) {
-            if(cookie.getName().equals("username") && cookie.getValue().equals(username)) {
-                Cookie newCookie = new Cookie("username", null);
-                newCookie.setMaxAge(0);
+            if(cookie.getName().equals(USERNAME_KEY) && cookie.getValue().equals(username)) {
+                Cookie newCookie = new Cookie(USERNAME_KEY, null);
+                newCookie.setMaxAge(ZERO);
                 resp.addCookie(newCookie);
                 return new ResponseEntity(HttpStatus.OK);
             }
