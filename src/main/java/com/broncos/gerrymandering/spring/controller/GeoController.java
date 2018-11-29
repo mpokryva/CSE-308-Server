@@ -4,6 +4,7 @@ import com.broncos.gerrymandering.model.District;
 import com.broncos.gerrymandering.model.Precinct;
 import com.broncos.gerrymandering.model.State;
 import com.broncos.gerrymandering.model.StateCode;
+import com.broncos.gerrymandering.util.BoundaryWrapper;
 import com.broncos.gerrymandering.util.StateManager;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,12 +35,12 @@ public class GeoController {
             method = RequestMethod.GET,
             params = {"stateCode"},
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<Integer, String> getDistrictGeo(StateCode stateCode) {
+    public Map<Integer, BoundaryWrapper> getDistrictGeo(StateCode stateCode) {
         StateManager sm = StateManager.getInstance();
         State state = sm.getState(stateCode);
-        Map<Integer, String> boundaryByDistrictId = new HashMap<>();
+        Map<Integer, BoundaryWrapper> boundaryByDistrictId = new HashMap<>();
         for (District district : state.getDistrictById().values()) {
-            boundaryByDistrictId.put(district.getDistrictId(), district.getBoundary());
+            boundaryByDistrictId.put(district.getDistrictId(), new BoundaryWrapper(district.getBoundary()));
         }
         return boundaryByDistrictId;
     }
@@ -48,16 +49,16 @@ public class GeoController {
             method = RequestMethod.GET,
             params = {"districtId", "stateCode"},
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<Integer, String> getPrecinctGeo(Integer districtId, StateCode stateCode) {
+    public Map<Integer, BoundaryWrapper> getPrecinctGeo(Integer districtId, StateCode stateCode) {
         StateManager sm = StateManager.getInstance();
         District district = sm.getDistrict(districtId, stateCode);
         if (district == null) {
             return null;
         }
         Collection<Precinct> precincts = district.getPrecincts();
-        Map<Integer, String> boundaryByPrecinctId = new HashMap<>();
+        Map<Integer, BoundaryWrapper> boundaryByPrecinctId = new HashMap<>();
         for (Precinct precinct : precincts) {
-            boundaryByPrecinctId.put(precinct.getPrecinctId(), precinct.getBoundary());
+            boundaryByPrecinctId.put(precinct.getPrecinctId(), new BoundaryWrapper(precinct.getBoundary()));
         }
         return boundaryByPrecinctId;
     }
