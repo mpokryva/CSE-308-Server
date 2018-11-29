@@ -26,6 +26,7 @@ import java.util.Set;
 @Entity(name = "DISTRICT")
 public class District implements Serializable {
     private static final Short CURRENT_YEAR = 2010;
+    private static final int TWO = 2;
 
     @Id
     @GeneratedValue
@@ -127,10 +128,10 @@ public class District implements Serializable {
             switch (measure) {
                 case EFFICIENCY_GAP:
                     Election currElection = electionByYear.get(CURRENT_YEAR);
-                    int wastedVotes = Math.max(currElection.getDemocratVotes(), currElection.getRepublicanVotes())
-                            - ((currElection.getDemocratVotes() + currElection.getRepublicanVotes()) / 2);
+                    int excessVotes = Math.max(currElection.getDemocratVotes(), currElection.getRepublicanVotes())
+                            - ((currElection.getDemocratVotes() + currElection.getRepublicanVotes()) / TWO);
                     int lostVotes = Math.min(currElection.getDemocratVotes(), currElection.getRepublicanVotes());
-                    valByMeasure.put(measure, Double.valueOf(wastedVotes - lostVotes));
+                    valByMeasure.put(measure, Double.valueOf(excessVotes - lostVotes));
                     break;
             }
         }

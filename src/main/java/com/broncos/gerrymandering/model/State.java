@@ -16,6 +16,7 @@ import java.util.Map;
 @Entity(name = "STATE")
 public class State implements Serializable {
     private static final Short CURRENT_YEAR = 2010;
+    private static final int ZERO = 0;
 
     @Id
     @GeneratedValue
@@ -70,8 +71,8 @@ public class State implements Serializable {
     }
 
     public double getObjFuncVal(Map<Measure, Double> weights) {
-        double objFuncVal = 0;
-        double wastedVoteDifferenceTotal = 0;
+        double objFuncVal = ZERO;
+        double wastedVoteDifferenceTotal = ZERO;
         for(District district: districtById.values()) {
             Map<Measure, Double> distMeasures = district.getValByMeasure();
             for (Measure measure: Measure.values()) {
