@@ -17,6 +17,7 @@ import java.util.Map;
 /**
  * Created by kristiancharbonneau on 11/25/18.
  */
+@CrossOrigin(origins = "http://localhost:9000")
 @RestController
 public class AccountController {
 

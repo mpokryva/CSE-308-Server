@@ -7,6 +7,7 @@ import com.broncos.gerrymandering.model.StateCode;
 import com.broncos.gerrymandering.util.BoundaryWrapper;
 import com.broncos.gerrymandering.util.StateManager;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,7 @@ import java.util.Map;
 /**
  * Created by mpokr on 11/25/2018.
  */
+@CrossOrigin(origins = "http://localhost:9000")
 @RestController
 public class GeoController {
 

@@ -27,7 +27,7 @@ public class StateManager {
     private StateManager() {
         idByStateCode = new HashMap<>();
         statesByCode = new HashMap<>();
-        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
         final String qText = "SELECT s.id, s.stateCode FROM STATE s";
         Query query = em.createQuery(qText);
         List<Object[]> results = query.getResultList();
@@ -54,7 +54,7 @@ public class StateManager {
     public State getState(StateCode stateCode) {
         State state = statesByCode.get(stateCode);
         if (state == null) {
-            EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
+            EntityManager em = DefaultEntityManagerFactory.getEntityManager();
             final String qText = "SELECT s FROM STATE s WHERE s.id = :stateId";
             Query query = em.createQuery(qText);
             Integer stateId = idByStateCode.get(stateCode);
@@ -75,7 +75,7 @@ public class StateManager {
     }
 
     public Precinct getPrecinct(Integer precinctId, Integer districtId, StateCode stateCode) {
-        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
         final String qText = "SELECT p FROM PRECINCT p WHERE p.precinctId = :precinctId and " +
                 "p.district.districtId = :districtId and " +
                 "p.state.id = :stateId";

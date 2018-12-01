@@ -13,6 +13,7 @@ import java.util.Optional;
 /**
  * Created by mpokr on 11/25/2018.
  */
+@CrossOrigin(origins = "http://localhost:9000")
 @RestController
 public class InfoController {
 
