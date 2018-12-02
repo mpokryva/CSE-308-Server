@@ -38,21 +38,24 @@ public class Move {
     }
 
     public static void main(String[] args) {
+        //precincts: 3504918, 3504985, 3504919
         StateManager sm = StateManager.getInstance();
-        //74496        73568
-        //district id = 213
         State nm = sm.getState(StateCode.NM);
         Map <Measure, Double> weights = new HashMap<>();
         weights.put(Measure.EFFICIENCY_GAP, 1.0);
-        System.out.println("OBJ FUNC: " + nm.getObjFuncVal(weights));
-        District dest = sm.getDistrict(3, StateCode.NM);
-        Precinct p = sm.getPrecinct(350575, 1, StateCode.NM);
-        Move m = new Move(p, dest, null, weights);
+        District dest = sm.getDistrict(1, StateCode.NM);
+        Precinct p1 = sm.getPrecinct(3504918, 3, StateCode.NM);
+        Precinct p2 = sm.getPrecinct(3504985, 3, StateCode.NM);
+        Precinct p3 = sm.getPrecinct(3504919, 3, StateCode.NM);
+        Set<Precinct> borders = dest.getBorderPrecincts();
+        Move m = new Move(p1, dest, null, weights);
         m.make();
         System.out.println("OBJ FUNC: " + m.objFuncVal);
-//        Set<Precinct> borders = dest.getBorderPrecincts();
-//        for(Precinct p: borders) {
-//            System.out.println(p.getPrecinctId());
-//        }
+        m = new Move(p2, dest, null, weights);
+        m.make();
+        System.out.println("OBJ FUNC: " + m.objFuncVal);
+        m = new Move(p3, dest, null, weights);
+        m.make();
+        System.out.println("OBJ FUNC: " + m.objFuncVal);
     }
 }

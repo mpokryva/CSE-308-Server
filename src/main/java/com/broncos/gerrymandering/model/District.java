@@ -103,7 +103,19 @@ public class District implements Serializable {
     }
 
     public Set<Precinct> getBorderPrecincts() {
-        if(borderPrecincts == null) updateBorderPrecincts();
+        if(borderPrecincts == null) {
+            PreparedPolygon prepDistrict = new PreparedPolygon((Polygonal)getGeometry());
+            if(borderPrecincts != null)
+                borderPrecincts.clear();
+            else
+                borderPrecincts = new HashSet<>();
+            Iterator<Precinct> it = precinctIterator();
+            while (it.hasNext()) {
+                Precinct precinct = it.next();
+                if(!prepDistrict.containsProperly(precinct.getGeometry()))
+                    borderPrecincts.add(precinct);
+            }
+        }
         return borderPrecincts;
     }
 
@@ -121,17 +133,13 @@ public class District implements Serializable {
         return String.format("[%d]: %s", id, state.getName());
     }
 
-    private void updateBorderPrecincts() {
+    private void updateBorderPrecincts(Precinct precinctToAdd) {
+        if(borderPrecincts == null) getBorderPrecincts();
+        borderPrecincts.add(precinctToAdd);
         PreparedPolygon prepDistrict = new PreparedPolygon((Polygonal)getGeometry());
-        if(borderPrecincts != null)
-            borderPrecincts.clear();
-        else
-            borderPrecincts = new HashSet<>();
-        Iterator<Precinct> it = precinctIterator();
-        while (it.hasNext()) {
-            Precinct precinct = it.next();
-            if(!prepDistrict.containsProperly(precinct.getGeometry()))
-                borderPrecincts.add(precinct);
+        for(Precinct neighbor: precinctToAdd.getNeighbors()) {
+            if(borderPrecincts.contains(neighbor) && prepDistrict.containsProperly(neighbor.getGeometry()))
+                borderPrecincts.remove(neighbor);
         }
     }
 
@@ -161,6 +169,7 @@ public class District implements Serializable {
 
     public void addPrecinct(Precinct precinct) {
         precinctById.put(precinct.getPrecinctId(), precinct);
+        precinct.setDistrict(this);
         //check if geometry is MultiPolygon
         geometry = getGeometry().union(precinct.getGeometry());
         GeoJSONWriter writer = new GeoJSONWriter();
@@ -174,7 +183,7 @@ public class District implements Serializable {
         distElection.setVotingAgePopulation(
                 distElection.getVotingAgePopulation() + precElection.getVotingAgePopulation());
         population += precElection.getVotingAgePopulation(); //TODO: DO SOMETHING ABOUT NAMING
-        updateBorderPrecincts();
+        updateBorderPrecincts(precinct);
         updateMeasures();
     }
 

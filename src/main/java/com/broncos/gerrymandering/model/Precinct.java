@@ -69,6 +69,12 @@ public class Precinct implements Serializable {
         return electionByYear;
     }
 
+    public Set<Precinct> getNeighbors() { return neighbors; }
+
+    public void setDistrict(District district) {
+        this.district = district;
+    }
+
     public Precinct getRandomNeighbor() {
         Optional<Precinct> optPrecinct = neighbors.stream()
                 .skip((int) (Math.random() * neighbors.size()))
@@ -78,7 +84,7 @@ public class Precinct implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("[%s]: (%s, %d)", id, state.getName(), district.getDistrictId());
+        return String.format("[%s]: (%d, %s, %d)", id, precinctId, state.getName(), district.getDistrictId());
     }
 
     public static void main(String[] args) {
