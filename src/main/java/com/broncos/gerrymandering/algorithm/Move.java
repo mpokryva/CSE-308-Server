@@ -33,6 +33,10 @@ public class Move {
         }
     }
 
+    public double getObjFuncVal() {
+        return objFuncVal;
+    }
+
     public void revert() {
 
     }

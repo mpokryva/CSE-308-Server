@@ -46,6 +46,10 @@ public abstract class Algorithm {
         return weights;
     }
 
+    protected void setWeights(Map<Measure, Double> weights) {
+        this.weights = weights;
+    }
+
     protected StateCode getStateCode() {
         return stateCode;
     }

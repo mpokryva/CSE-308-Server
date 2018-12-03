@@ -33,6 +33,13 @@ public class Election implements Serializable {
     public Election() {
     }
 
+    public Election(Integer votingAgePopulation, Integer republicanVotes, Integer democratVotes, short year) {
+        this.votingAgePopulation = votingAgePopulation;
+        this.republicanVotes = republicanVotes;
+        this.democratVotes = democratVotes;
+        this.year = year;
+    }
+
     public Integer getRepublicanVotes() {
         return republicanVotes;
     }

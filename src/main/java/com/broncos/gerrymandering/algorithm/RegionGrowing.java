@@ -3,9 +3,7 @@ package com.broncos.gerrymandering.algorithm;
 import com.broncos.gerrymandering.model.*;
 import com.broncos.gerrymandering.util.StateManager;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 
 public class RegionGrowing extends Algorithm {
@@ -14,25 +12,24 @@ public class RegionGrowing extends Algorithm {
     private Set<Precinct> unassignedPrecincts;
     private int regions;
 
-    public RegionGrowing(StateCode stateCode, int regions, SeedPrecinctCriterion criterion) {
+    public RegionGrowing(StateCode stateCode, int regions,
+                         SeedPrecinctCriterion criterion, Map<Measure, Double> weights) {
+        this.setWeights(weights);
+        this.criterion = criterion;
         this.setInitialState(StateManager.getInstance().getState(stateCode));
         this.unassignedPrecincts = new HashSet<>();
-        Iterator<District> districtIt = getInitialState().districtIterator();
-        while (districtIt.hasNext()) {
-            District district = districtIt.next();
-            Iterator<Precinct> precinctIt = district.precinctIterator();
-            while (precinctIt.hasNext()) {
-                unassignedPrecincts.add(precinctIt.next());
+        for (District district: getInitialState().getDistricts()) {
+            for(Precinct precinct: district.getPrecincts()) {
+                unassignedPrecincts.add(precinct);
             }
         }
         this.regions = regions;
         this.setRedistrictedState(getInitialState().clone());
         Set<Precinct> seedPrecincts = selectSeedPrecincts(criterion);
         State redistrictedState = this.getRedistrictedState();
+        int districtId = 1;
         for (Precinct precinct : seedPrecincts) {
-            District initialDistrict = new District();
-            initialDistrict.setState(redistrictedState);
-            initialDistrict.addPrecinct(precinct);
+            District initialDistrict = new District(districtId++, redistrictedState, precinct);
             redistrictedState.addDistrict(initialDistrict);
             unassignedPrecincts.remove(precinct);
         }
@@ -46,10 +43,11 @@ public class RegionGrowing extends Algorithm {
             if (precinctToMove == null) {
                 continue;
             }
+
             Move move = new Move(precinctToMove, district, null, this.getWeights());
-            double prevValue = this.getObjFuncValueByDistrict(district, getWeights());
+            double prevValue = getRedistrictedState().getObjFuncVal(getWeights());
             move.make();
-            if (prevValue < this.getObjFuncValueByDistrict(district, getWeights())) {
+            if (prevValue < move.getObjFuncVal()) {
 
             }
         }
@@ -78,5 +76,13 @@ public class RegionGrowing extends Algorithm {
             }
         }
         return null;
+    }
+
+    public static void main(String[] args) {
+        Map<Measure, Double> weights = new HashMap<>();
+        weights.put(Measure.EFFICIENCY_GAP, 1.0);
+        RegionGrowing rg = new RegionGrowing(StateCode.NM, 3, SeedPrecinctCriterion.RANDOM, weights);
+        rg.run();
+
     }
 }

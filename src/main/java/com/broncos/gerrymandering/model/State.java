@@ -61,6 +61,10 @@ public class State implements Serializable {
         return districtById.get(districtId);
     }
 
+    public Set<District> getDistricts() {
+        return (Set)districtById.values();
+    }
+
     public Iterator<District> districtIterator() {
         return districtById.values().iterator();
     }

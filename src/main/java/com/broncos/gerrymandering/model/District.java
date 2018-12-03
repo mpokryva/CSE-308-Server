@@ -5,6 +5,7 @@ import org.hibernate.annotations.*;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.prep.PreparedPolygon;
+import org.springframework.format.number.money.CurrencyUnitFormatter;
 import org.wololo.jts2geojson.GeoJSONReader;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
@@ -55,6 +56,17 @@ public class District implements Serializable {
     public District() {
     }
 
+    public District(int districtId, State state, Precinct seed) {
+        this.districtId = districtId;
+        this.state = state;
+        precinctById = new HashMap<>();
+        boundary = seed.getBoundary();
+        population = 0;
+        electionByYear = new HashMap<>();
+        electionByYear.put(CURRENT_YEAR, new Election(0, 0, 0, CURRENT_YEAR));
+        addPrecinct(seed);
+    }
+
     public Integer getDistrictId() {
         return districtId;
     }
@@ -72,6 +84,8 @@ public class District implements Serializable {
     public Precinct getPrecinctById(Integer precinctId) {
         return precinctById.get(precinctId);
     }
+
+    public Set<Precinct> getPrecincts() { return (Set)precinctById.values(); }
 
     public Iterator<Precinct> precinctIterator() {
         return precinctById.values().iterator();
