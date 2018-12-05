@@ -1,7 +1,9 @@
 package com.broncos.gerrymandering.algorithm;
 
 import com.broncos.gerrymandering.model.*;
+import com.broncos.gerrymandering.util.MoveSerializer;
 import com.broncos.gerrymandering.util.StateManager;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.locationtech.jts.geom.Geometry;
 
 import java.util.HashMap;
@@ -11,6 +13,7 @@ import java.util.Set;
 /**
  * Created by kristiancharbonneau on 11/27/18.
  */
+@JsonSerialize(using = MoveSerializer.class)
 public class Move {
     private Precinct precinct;
     private District destination;
@@ -33,12 +36,48 @@ public class Move {
         }
     }
 
+    public void revert() {
+
+    }
+
     public double getObjFuncVal() {
         return objFuncVal;
     }
 
-    public void revert() {
+    public Precinct getPrecinct() {
+        return precinct;
+    }
 
+    public void setPrecinct(Precinct precinct) {
+        this.precinct = precinct;
+    }
+
+    public District getDestination() {
+        return destination;
+    }
+
+    public void setDestination(District destination) {
+        this.destination = destination;
+    }
+
+    public District getSource() {
+        return source;
+    }
+
+    public void setSource(District source) {
+        this.source = source;
+    }
+
+    public void setObjFuncVal(double objFuncVal) {
+        this.objFuncVal = objFuncVal;
+    }
+
+    public Map<Measure, Double> getWeights() {
+        return weights;
+    }
+
+    public void setWeights(Map<Measure, Double> weights) {
+        this.weights = weights;
     }
 
     public static void main(String[] args) {

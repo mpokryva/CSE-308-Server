@@ -14,9 +14,8 @@ public class RegionGrowing extends Algorithm {
 
     public RegionGrowing(StateCode stateCode, int regions,
                          SeedPrecinctCriterion criterion, Map<Measure, Double> weights) {
-        this.setWeights(weights);
+        super(stateCode, weights);
         this.criterion = criterion;
-        this.setInitialState(StateManager.getInstance().getState(stateCode));
         this.unassignedPrecincts = new HashSet<>();
         for (District district: getInitialState().getDistricts()) {
             for(Precinct precinct: district.getPrecincts()) {
@@ -32,6 +31,8 @@ public class RegionGrowing extends Algorithm {
             District initialDistrict = new District(districtId++, redistrictedState, precinct);
             redistrictedState.addDistrict(initialDistrict);
             unassignedPrecincts.remove(precinct);
+            Move move = new Move(precinct, initialDistrict, null, weights);
+            addMove(move);
         }
     }
 
@@ -43,10 +44,11 @@ public class RegionGrowing extends Algorithm {
             if (precinctToMove == null) {
                 continue;
             }
-
+            unassignedPrecincts.remove(precinctToMove);
             Move move = new Move(precinctToMove, district, null, this.getWeights());
             double prevValue = getRedistrictedState().getObjFuncVal(getWeights());
             move.make();
+            addMove(move); //TODO: move this
             if (prevValue < move.getObjFuncVal()) {
 
             }
@@ -83,6 +85,5 @@ public class RegionGrowing extends Algorithm {
         weights.put(Measure.EFFICIENCY_GAP, 1.0);
         RegionGrowing rg = new RegionGrowing(StateCode.NM, 3, SeedPrecinctCriterion.RANDOM, weights);
         rg.run();
-
     }
 }
