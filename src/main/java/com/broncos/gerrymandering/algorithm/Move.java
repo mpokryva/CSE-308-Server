@@ -29,14 +29,21 @@ public class Move {
     }
 
     public void make() {
-        destination.addPrecinct(precinct);
-        objFuncVal = destination.getState().getObjFuncVal(weights);
-        if(source != null) {
-            //TODO: for simulated annealing
+        if(destination != null) {
+            destination.addPrecinct(precinct);
+            objFuncVal = destination.getState().getObjFuncVal(weights);
         }
+        if(source != null) {
+            source.removePrecinct(precinct);
+            if(objFuncVal == 0)
+                objFuncVal = source.getState().getObjFuncVal(weights);
+        }
+
     }
 
     public void revert() {
+        Move reverse = new Move(precinct, source, destination, weights);
+        reverse.make();
 
     }
 

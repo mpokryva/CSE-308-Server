@@ -62,7 +62,7 @@ public class State implements Serializable {
     }
 
     public Set<District> getDistricts() {
-        return (Set)districtById.values();
+        return new HashSet<>(districtById.values());
     }
 
     public Iterator<District> districtIterator() {
@@ -99,20 +99,24 @@ public class State implements Serializable {
     }
 
     public double getObjFuncVal(Map<Measure, Double> weights) {
-        double objFuncVal = ZERO;
-        double wastedVoteDifferenceTotal = ZERO;
+        double wastedVoteDifferenceTotal = 0;
+        double polsbySum = 0;
         for(District district: districtById.values()) {
             for (Measure measure: Measure.values()) {
                 switch (measure) {
                     case EFFICIENCY_GAP:
                         wastedVoteDifferenceTotal += district.getValueByMeasure(measure);
                         break;
+                    case COMPACTNESS:
+                        polsbySum += district.getValueByMeasure(measure);
+                        break;
                 }
             }
         }
         int population = electionByYear.get(CURRENT_YEAR).getVotingAgePopulation();
-        double effGapTerm = (Math.abs(wastedVoteDifferenceTotal) / population) * weights.get(Measure.EFFICIENCY_GAP);
-        return effGapTerm;
+        double effGapTerm = 1 - ((Math.abs(wastedVoteDifferenceTotal) / population) * weights.get(Measure.EFFICIENCY_GAP));
+        double compTerm = polsbySum / getDistricts().size();
+        return effGapTerm + compTerm;
     }
 
     public void addDistrict(District district) {

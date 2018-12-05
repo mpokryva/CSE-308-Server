@@ -23,7 +23,7 @@ public class AlgorithmController {
     @RequestMapping(value = "/algorithm/new",
             method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
-    public void register(@RequestBody AlgorithmDTO algorithmDTO) {
+    public String register(@RequestBody AlgorithmDTO algorithmDTO) {
         if(algorithmDTO.getType().equals(REGION_GROWING)) {
             SeedPrecinctCriterion criterion = SeedPrecinctCriterion.valueOf(algorithmDTO.getVariation());
             algorithm = new RegionGrowing(algorithmDTO.getStateCode(), algorithmDTO.getRegions(),
@@ -31,6 +31,7 @@ public class AlgorithmController {
         }
         System.out.println(algorithmDTO.getRegions());
         algorithm.run();
+        return "DONE (for testing)";
     }
 
     @RequestMapping(value = "/algorithm/get-update",

@@ -147,11 +147,14 @@ public class District implements Serializable {
         return String.format("[%d]: %s", id, state.getName());
     }
 
-    private void updateBorderPrecincts(Precinct precinctToAdd) {
+    private void updateBorderPrecincts(Precinct precinct, boolean toAdd) {
         if(borderPrecincts == null) getBorderPrecincts();
-        borderPrecincts.add(precinctToAdd);
+        if(toAdd)
+            borderPrecincts.add(precinct);
+        else
+            borderPrecincts.remove(precinct);
         PreparedPolygon prepDistrict = new PreparedPolygon((Polygonal)getGeometry());
-        for(Precinct neighbor: precinctToAdd.getNeighbors()) {
+        for(Precinct neighbor: precinct.getNeighbors()) {
             if(borderPrecincts.contains(neighbor) && prepDistrict.containsProperly(neighbor.getGeometry()))
                 borderPrecincts.remove(neighbor);
         }
@@ -167,6 +170,12 @@ public class District implements Serializable {
                             - ((currElection.getDemocratVotes() + currElection.getRepublicanVotes()) / TWO);
                     int lostVotes = Math.min(currElection.getDemocratVotes(), currElection.getRepublicanVotes());
                     valueByMeasure.put(measure, (double) (excessVotes - lostVotes));
+                    break;
+                case COMPACTNESS:
+                    double area = getGeometry().getArea();
+                    double perimeter = getGeometry().getLength();
+                    double polsbyPopper = (4 * Math.PI * area) / Math.pow(perimeter, 2);
+                    valueByMeasure.put(measure, polsbyPopper);
                     break;
             }
         }
@@ -197,7 +206,27 @@ public class District implements Serializable {
         distElection.setVotingAgePopulation(
                 distElection.getVotingAgePopulation() + precElection.getVotingAgePopulation());
         population += precElection.getVotingAgePopulation(); //TODO: DO SOMETHING ABOUT NAMING
-        updateBorderPrecincts(precinct);
+        updateBorderPrecincts(precinct, true);
+        updateMeasures();
+    }
+
+    public void removePrecinct(Precinct precinct) {
+        precinctById.remove(precinct.getPrecinctId());
+        precinct.setDistrict(null);
+        //check if geometry is MultiPolygon
+        geometry = getGeometry().difference(precinct.getGeometry());
+        GeoJSONWriter writer = new GeoJSONWriter();
+        boundary = writer.write(geometry).toString();
+        Election distElection = electionByYear.get(CURRENT_YEAR);
+        Election precElection = precinct.getElectionByYear().get(CURRENT_YEAR);
+        distElection.setDemocratVotes(
+                distElection.getDemocratVotes() - precElection.getDemocratVotes());
+        distElection.setRepublicanVotes(
+                distElection.getRepublicanVotes() - precElection.getRepublicanVotes());
+        distElection.setVotingAgePopulation(
+                distElection.getVotingAgePopulation() - precElection.getVotingAgePopulation());
+        population -= precElection.getVotingAgePopulation(); //TODO: DO SOMETHING ABOUT NAMING
+        updateBorderPrecincts(precinct, false);
         updateMeasures();
     }
 

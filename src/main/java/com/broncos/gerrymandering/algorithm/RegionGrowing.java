@@ -38,19 +38,27 @@ public class RegionGrowing extends Algorithm {
 
     @Override
     public State run() {
+        int failedMoves = 0;
         while (!unassignedPrecincts.isEmpty()) {
+            if(failedMoves > 500) break;
             District district = getRedistrictedState().getRandomDistrict();
             Precinct precinctToMove = nextPrecinctToMove(district);
             if (precinctToMove == null) {
+                failedMoves++;
                 continue;
             }
             unassignedPrecincts.remove(precinctToMove);
             Move move = new Move(precinctToMove, district, null, this.getWeights());
             double prevValue = getRedistrictedState().getObjFuncVal(getWeights());
             move.make();
-            addMove(move); //TODO: move this
-            if (prevValue < move.getObjFuncVal()) {
-
+            //TODO: Play around with randomness of accepting worse moves
+            if (prevValue < move.getObjFuncVal() && Math.random() > 0.5) {
+                move.revert();
+                unassignedPrecincts.add(precinctToMove);
+                System.out.println("\n\n REJECTED \n\n\n");
+            }else {
+                addMove(move);
+                System.out.println("\n\n ACCEPTED \n\n\n");
             }
         }
         return getRedistrictedState();
@@ -85,5 +93,6 @@ public class RegionGrowing extends Algorithm {
         weights.put(Measure.EFFICIENCY_GAP, 1.0);
         RegionGrowing rg = new RegionGrowing(StateCode.NM, 3, SeedPrecinctCriterion.RANDOM, weights);
         rg.run();
+        System.out.println("hello");
     }
 }
