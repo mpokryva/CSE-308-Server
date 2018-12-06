@@ -123,9 +123,7 @@ public class District implements Serializable {
                 borderPrecincts.clear();
             else
                 borderPrecincts = new HashSet<>();
-            Iterator<Precinct> it = precinctIterator();
-            while (it.hasNext()) {
-                Precinct precinct = it.next();
+            for(Precinct precinct: precinctById.values()) {
                 if(!prepDistrict.containsProperly(precinct.getGeometry()))
                     borderPrecincts.add(precinct);
             }
@@ -147,16 +145,24 @@ public class District implements Serializable {
         return String.format("[%d]: %s", id, state.getName());
     }
 
-    private void updateBorderPrecincts(Precinct precinct, boolean toAdd) {
-        if(borderPrecincts == null) getBorderPrecincts();
-        if(toAdd)
+    private void updateBorderPrecincts(Precinct precinct, boolean isAdded) {
+        if(borderPrecincts == null)
+            getBorderPrecincts();
+        if(isAdded)
             borderPrecincts.add(precinct);
         else
             borderPrecincts.remove(precinct);
         PreparedPolygon prepDistrict = new PreparedPolygon((Polygonal)getGeometry());
-        for(Precinct neighbor: precinct.getNeighbors()) {
-            if(borderPrecincts.contains(neighbor) && prepDistrict.containsProperly(neighbor.getGeometry()))
-                borderPrecincts.remove(neighbor);
+        if(isAdded)
+            for(Precinct neighbor: precinct.getNeighbors()) {
+                if(borderPrecincts.contains(neighbor) && prepDistrict.containsProperly(neighbor.getGeometry()))
+                    borderPrecincts.remove(neighbor);
+            }
+        else {
+            for(Precinct neighbor: precinct.getNeighbors()) {
+                if(precinctById.containsKey(precinct.getPrecinctId()) && !prepDistrict.containsProperly(neighbor.getGeometry()))
+                    borderPrecincts.add(neighbor);
+            }
         }
     }
 

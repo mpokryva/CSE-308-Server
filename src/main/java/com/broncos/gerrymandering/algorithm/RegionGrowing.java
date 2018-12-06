@@ -2,6 +2,8 @@ package com.broncos.gerrymandering.algorithm;
 
 import com.broncos.gerrymandering.model.*;
 import com.broncos.gerrymandering.util.StateManager;
+import org.locationtech.jts.geom.Polygonal;
+import org.locationtech.jts.geom.prep.PreparedPolygon;
 
 import java.util.*;
 
@@ -23,7 +25,7 @@ public class RegionGrowing extends Algorithm {
             }
         }
         this.regions = regions;
-        this.setRedistrictedState(getInitialState().clone());
+        this.setRedistrictedState(getInitialState().cloneForRG());
         Set<Precinct> seedPrecincts = selectSeedPrecincts(criterion);
         State redistrictedState = this.getRedistrictedState();
         int districtId = 1;
@@ -40,10 +42,13 @@ public class RegionGrowing extends Algorithm {
     public State run() {
         int failedMoves = 0;
         while (!unassignedPrecincts.isEmpty()) {
-            if(failedMoves > 500) break;
+            if(failedMoves > 2000) break;
             District district = getRedistrictedState().getRandomDistrict();
             Precinct precinctToMove = nextPrecinctToMove(district);
             if (precinctToMove == null) {
+                //TODO: figure out how to deal with holes
+                if(unassignedPrecincts.size() < 100 &&
+                        (precinctToMove = getEnclosedPrecinct(district)) == null)
                 failedMoves++;
                 continue;
             }
@@ -55,10 +60,8 @@ public class RegionGrowing extends Algorithm {
             if (prevValue < move.getObjFuncVal() && Math.random() > 0.5) {
                 move.revert();
                 unassignedPrecincts.add(precinctToMove);
-                System.out.println("\n\n REJECTED \n\n\n");
             }else {
                 addMove(move);
-                System.out.println("\n\n ACCEPTED \n\n\n");
             }
         }
         return getRedistrictedState();
@@ -84,6 +87,16 @@ public class RegionGrowing extends Algorithm {
             if (unassignedPrecincts.contains(neighbor)) {
                 return neighbor;
             }
+        }
+        return null;
+    }
+    //Check if any unassigned precinct are enclosed completely by district
+    //TODO: fix this :(
+    private Precinct getEnclosedPrecinct(District district) {
+        PreparedPolygon prepDistrict = new PreparedPolygon((Polygonal)district.getGeometry());
+        for (Precinct precinct : unassignedPrecincts) {
+            if(prepDistrict.containsProperly(precinct.getGeometry()))
+                return precinct;
         }
         return null;
     }

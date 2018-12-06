@@ -77,7 +77,7 @@ public class State implements Serializable {
         return boundary;
     }
 
-    public State clone() {
+    public State cloneForRG() {
         State state = new State();
         state.stateCode = stateCode;
         state.name = name;
@@ -88,6 +88,7 @@ public class State implements Serializable {
         state.electionByYear = electionByYear;
         return state;
     }
+    
 
     public District getRandomDistrict() {
         Optional<District> optDistrict = districtById.values()
