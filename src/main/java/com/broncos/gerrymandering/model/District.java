@@ -32,12 +32,10 @@ public class District implements Serializable {
     private Integer population;
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "STATE_ID")
-    @JsonIgnore
     private State state;
     @Column(name = "BOUNDARY")
     @Type(type = "text")
     private String boundary;
-    @JsonIgnore
     private transient Geometry geometry;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "REPRESENTATIVE_ID")

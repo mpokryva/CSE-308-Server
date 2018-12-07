@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class Algorithm {
 
-    private Queue<Move> pastMoves;
+    //private Queue<Move> pastMoves;
+    private AtomicLong objFuncVal;
     private Map<Measure, Double> weights;
     private boolean terminated;
     private StateCode stateCode;
@@ -22,7 +24,8 @@ public abstract class Algorithm {
         this.stateCode = stateCode;
         this.setInitialState(StateManager.getInstance().getState(stateCode));
         this.weights = weights;
-        pastMoves = new ConcurrentLinkedQueue<>();
+        objFuncVal = new AtomicLong(0);
+        //pastMoves = new ConcurrentLinkedQueue<>();
     }
 
     public abstract State run();
@@ -31,8 +34,16 @@ public abstract class Algorithm {
         return redistrictedState.getDistrictById(district.getDistrictId()).calculateObjFuncValue(weights);
     }
 
+    public double getObjFuncVal() {
+        return Double.longBitsToDouble(objFuncVal.get());
+    }
+
+    public void setObjFuncVal(double objFuncVal) {
+        this.objFuncVal.set(Double.doubleToLongBits(objFuncVal));
+    }
+
     protected boolean isTerminated() {
-        return isTerminated();
+        return terminated;
     }
 
     protected int getNumSteps() {
@@ -51,7 +62,7 @@ public abstract class Algorithm {
         return stateCode;
     }
 
-    protected State getRedistrictedState() {
+    public State getRedistrictedState() {
         return redistrictedState;
     }
 
@@ -67,16 +78,18 @@ public abstract class Algorithm {
         this.redistrictedState = redistrictedState;
     }
 
-    public void addMove(Move move) {
-        pastMoves.add(move);
-    }
+    public void setTerminated(boolean terminated) { this.terminated = terminated; }
 
-    public Move[] flushPastMoves() {
-        Move[] moves = new Move[0];
-        synchronized (pastMoves) {
-            moves = pastMoves.toArray(moves);
-            pastMoves.clear();
-        }
-        return moves;
-    }
+//    public void addMove(Move move) {
+//        pastMoves.add(move);
+//    }
+//
+//    public Move[] flushPastMoves() {
+//        Move[] moves = new Move[0];
+//        synchronized (pastMoves) {
+//            moves = pastMoves.toArray(moves);
+//            pastMoves.clear();
+//        }
+//        return moves;
+//    }
 }

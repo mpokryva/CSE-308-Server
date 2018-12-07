@@ -33,8 +33,8 @@ public class RegionGrowing extends Algorithm {
             District initialDistrict = new District(districtId++, redistrictedState, precinct);
             redistrictedState.addDistrict(initialDistrict);
             unassignedPrecincts.remove(precinct);
-            Move move = new Move(precinct, initialDistrict, null, weights);
-            addMove(move);
+//            Move move = new Move(precinct, initialDistrict, null, weights);
+//            addMove(move);
         }
     }
 
@@ -42,7 +42,7 @@ public class RegionGrowing extends Algorithm {
     public State run() {
         int failedMoves = 0;
         while (!unassignedPrecincts.isEmpty()) {
-            if(failedMoves > 2000) break;
+            if(failedMoves > 2000 || isTerminated()) break;
             District district = getRedistrictedState().getRandomDistrict();
             Precinct precinctToMove = nextPrecinctToMove(district);
             if (precinctToMove == null) {
@@ -61,7 +61,8 @@ public class RegionGrowing extends Algorithm {
                 move.revert();
                 unassignedPrecincts.add(precinctToMove);
             }else {
-                addMove(move);
+                setObjFuncVal(move.getObjFuncVal());
+                //addMove(move);
             }
         }
         return getRedistrictedState();

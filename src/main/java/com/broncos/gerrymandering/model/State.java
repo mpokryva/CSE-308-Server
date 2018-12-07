@@ -11,6 +11,7 @@ import org.wololo.jts2geojson.GeoJSONReader;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Entity(name = "STATE")
 public class State implements Serializable {
@@ -61,6 +62,8 @@ public class State implements Serializable {
         return districtById.get(districtId);
     }
 
+    public Map<Integer, District> getDistrictMap() { return districtById; }
+
     public Set<District> getDistricts() {
         return new HashSet<>(districtById.values());
     }
@@ -84,7 +87,7 @@ public class State implements Serializable {
         state.boundary = boundary;
         state.geometry = geometry;
         state.constitutionText = constitutionText;
-        state.districtById = new HashMap<>();
+        state.districtById = new ConcurrentHashMap<>();
         state.electionByYear = electionByYear;
         return state;
     }
