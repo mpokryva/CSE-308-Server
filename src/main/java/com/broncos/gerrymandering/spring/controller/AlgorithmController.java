@@ -27,8 +27,8 @@ public class AlgorithmController {
     public ResponseEntity newAlgorithm(@RequestBody AlgorithmDTO algorithmDTO) {
         if(algorithmDTO.getType().equals(REGION_GROWING)) {
             SeedPrecinctCriterion criterion = SeedPrecinctCriterion.valueOf(algorithmDTO.getVariation());
-            algorithm = new RegionGrowing(algorithmDTO.getStateCode(), algorithmDTO.getRegions(),
-                        criterion, algorithmDTO.getWeights());
+            algorithm = new RegionGrowing(algorithmDTO.getStateCode(), algorithmDTO.getExcludedDistricts(),
+                       algorithmDTO.getSeedIds(), criterion, algorithmDTO.getWeights(), algorithmDTO.getRegions());
         }
         System.out.println(algorithmDTO.getRegions());
         algorithm.run();

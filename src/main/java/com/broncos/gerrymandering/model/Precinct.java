@@ -71,6 +71,7 @@ public class Precinct implements Serializable {
 
     public Set<Precinct> getNeighbors() { return neighbors; }
 
+    public District getDistrict() { return district; }
 
     public void setDistrict(District district) {
         this.district = district;

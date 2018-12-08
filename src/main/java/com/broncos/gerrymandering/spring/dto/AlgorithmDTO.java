@@ -4,6 +4,7 @@ import com.broncos.gerrymandering.model.Measure;
 import com.broncos.gerrymandering.model.StateCode;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by kristiancharbonneau on 12/3/18.
@@ -12,12 +13,21 @@ public class AlgorithmDTO {
     private String username;
     private StateCode stateCode;
     private Map<Measure, Double> weights;
+    private Set<Integer> seedIds;
+    private Set<Integer> excludedDistricts;
     private String type;
     private String variation;
     private int regions;
 
-    public AlgorithmDTO() {
-    }
+    public AlgorithmDTO() { }
+
+    public Set<Integer> getSeedIds() { return seedIds; }
+
+    public void setSeedIds(Set<Integer> seedPrecincts) { this.seedIds = seedPrecincts; }
+
+    public Set<Integer> getExcludedDistricts() { return excludedDistricts; }
+
+    public void setExcludedDistricts(Set<Integer> excludedDistricts) { this.excludedDistricts = excludedDistricts; }
 
     public int getRegions() {
         return regions;

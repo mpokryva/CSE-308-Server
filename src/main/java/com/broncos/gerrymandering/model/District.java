@@ -54,15 +54,14 @@ public class District implements Serializable {
     public District() {
     }
 
-    public District(int districtId, State state, Precinct seed) {
+    public District(int districtId, State state) {
         this.districtId = districtId;
         this.state = state;
         precinctById = new HashMap<>();
-        boundary = seed.getBoundary();
         population = 0;
         electionByYear = new HashMap<>();
         electionByYear.put(CURRENT_YEAR, new Election(0, 0, 0, CURRENT_YEAR));
-        addPrecinct(seed);
+
     }
 
     public Integer getDistrictId() {
@@ -109,6 +108,7 @@ public class District implements Serializable {
         return electionByYear;
     }
 
+    public void setBoundary(String boundary) { this.boundary = boundary; }
 
     public String getBoundary() {
         return boundary;
@@ -198,7 +198,12 @@ public class District implements Serializable {
         precinctById.put(precinct.getPrecinctId(), precinct);
         precinct.setDistrict(this);
         //check if geometry is MultiPolygon
-        geometry = getGeometry().union(precinct.getGeometry());
+        if (boundary == null) {
+            boundary = precinct.getBoundary();
+            geometry = precinct.getGeometry();
+        }else {
+            geometry = getGeometry().union(precinct.getGeometry());
+        }
         GeoJSONWriter writer = new GeoJSONWriter();
         boundary = writer.write(geometry).toString();
         Election distElection = electionByYear.get(CURRENT_YEAR);

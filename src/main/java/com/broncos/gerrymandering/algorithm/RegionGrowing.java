@@ -14,25 +14,39 @@ public class RegionGrowing extends Algorithm {
     private Set<Precinct> unassignedPrecincts;
     private int regions;
 
-    public RegionGrowing(StateCode stateCode, int regions,
-                         SeedPrecinctCriterion criterion, Map<Measure, Double> weights) {
-        super(stateCode, weights);
+    public RegionGrowing(StateCode stateCode, Set<Integer> excludedDistricts, Set<Integer> seedIds,
+                         SeedPrecinctCriterion criterion, Map<Measure, Double> weights, int regions) {
+        super(stateCode, weights, excludedDistricts);
         this.criterion = criterion;
         this.unassignedPrecincts = new HashSet<>();
-        for (District district: getInitialState().getDistricts()) {
-            for(Precinct precinct: district.getPrecincts()) {
-                unassignedPrecincts.add(precinct);
-            }
-        }
         this.regions = regions;
         this.setRedistrictedState(getInitialState().cloneForRG());
-        Set<Precinct> seedPrecincts = selectSeedPrecincts(criterion);
-        State redistrictedState = this.getRedistrictedState();
+        for (District district: getInitialState().getDistricts()) {
+            if (excludedDistricts.contains(district.getDistrictId())) {
+                District excDistrict = new District(district.getDistrictId(), getRedistrictedState());
+                for(Precinct precinct: district.getPrecincts()) {
+                    excDistrict.addPrecinct(precinct);
+                }
+                getRedistrictedState().addDistrict(excDistrict);
+            }else {
+                for(Precinct precinct: district.getPrecincts()) {
+                    unassignedPrecincts.add(precinct);
+                }
+            }
+        }
+        Set<Precinct> seedPrecincts = selectSeedPrecincts(criterion, seedIds);
         int districtId = 1;
         for (Precinct precinct : seedPrecincts) {
-            District initialDistrict = new District(districtId++, redistrictedState, precinct);
-            redistrictedState.addDistrict(initialDistrict);
+            District initialDistrict = new District(districtId, getRedistrictedState());
+            if (excludedDistricts.contains(districtId)) {
+                districtId++;
+                continue;
+            } else {
+                initialDistrict.addPrecinct(precinct);
+            }
+            getRedistrictedState().addDistrict(initialDistrict);
             unassignedPrecincts.remove(precinct);
+            districtId++;
 //            Move move = new Move(precinct, initialDistrict, null, weights);
 //            addMove(move);
         }
@@ -44,11 +58,9 @@ public class RegionGrowing extends Algorithm {
         while (!unassignedPrecincts.isEmpty()) {
             if(failedMoves > 2000 || isTerminated()) break;
             District district = getRedistrictedState().getRandomDistrict();
+            if(getExcludedDistricts().contains(district.getDistrictId())) continue;
             Precinct precinctToMove = nextPrecinctToMove(district);
             if (precinctToMove == null) {
-                //TODO: figure out how to deal with holes
-                if(unassignedPrecincts.size() < 100 &&
-                        (precinctToMove = getEnclosedPrecinct(district)) == null)
                 failedMoves++;
                 continue;
             }
@@ -65,19 +77,30 @@ public class RegionGrowing extends Algorithm {
                 //addMove(move);
             }
         }
+        fixHoles();
         return getRedistrictedState();
     }
 
-    private Set<Precinct> selectSeedPrecincts(SeedPrecinctCriterion criterion) {
+    private Set<Precinct> selectSeedPrecincts(SeedPrecinctCriterion criterion, Set<Integer> seedIds) {
         Set<Precinct> seedPrecincts = new HashSet<>();
         State initialState = getInitialState();
         if (criterion == SeedPrecinctCriterion.RANDOM) {
             for (int i = 0; i < this.regions; i++) {
                 District district = initialState.getRandomDistrict();
+                while(getExcludedDistricts().contains(district.getDistrictId())) {
+                    district = initialState.getRandomDistrict();
+                }
                 seedPrecincts.add(district.getRandomPrecinct());
             }
         } else if (criterion == SeedPrecinctCriterion.INCUMBENT) {
-            // TODO: Implement this.
+            for(District district: initialState.getDistricts()) {
+                for(int id: seedIds) {
+                    Precinct seed = district.getPrecinctById(id);
+                    if(seed != null) {
+                        seedPrecincts.add(seed);
+                    }
+                }
+            }
         }
         return seedPrecincts;
     }
@@ -91,22 +114,16 @@ public class RegionGrowing extends Algorithm {
         }
         return null;
     }
-    //Check if any unassigned precinct are enclosed completely by district
-    //TODO: fix this :(
-    private Precinct getEnclosedPrecinct(District district) {
-        PreparedPolygon prepDistrict = new PreparedPolygon((Polygonal)district.getGeometry());
-        for (Precinct precinct : unassignedPrecincts) {
-            if(prepDistrict.containsProperly(precinct.getGeometry()))
-                return precinct;
+
+    private void fixHoles() {
+        for(Precinct precinct: unassignedPrecincts) {
+            Precinct neighbor = precinct.getRandomNeighbor();
+            while(neighbor.getDistrict() == null)
+                neighbor = precinct.getRandomNeighbor();
+            District district = neighbor.getDistrict();
+            district.addPrecinct(precinct);
         }
-        return null;
     }
 
-    public static void main(String[] args) {
-        Map<Measure, Double> weights = new HashMap<>();
-        weights.put(Measure.EFFICIENCY_GAP, 1.0);
-        RegionGrowing rg = new RegionGrowing(StateCode.NM, 3, SeedPrecinctCriterion.RANDOM, weights);
-        rg.run();
-        System.out.println("hello");
-    }
+
 }

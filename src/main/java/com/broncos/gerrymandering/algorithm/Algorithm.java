@@ -6,6 +6,7 @@ import com.broncos.gerrymandering.util.StateManager;
 import java.util.List;
 import java.util.Queue;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -14,15 +15,17 @@ public abstract class Algorithm {
     //private Queue<Move> pastMoves;
     private AtomicLong objFuncVal;
     private Map<Measure, Double> weights;
+    private Set<Integer> excludedDistricts;
     private boolean terminated;
     private StateCode stateCode;
     private State redistrictedState;
     private State initialState;
     private int numSteps;
 
-    public Algorithm(StateCode stateCode, Map<Measure, Double> weights) {
+    public Algorithm(StateCode stateCode, Map<Measure, Double> weights, Set<Integer> excludedDistricts) {
         this.stateCode = stateCode;
-        this.setInitialState(StateManager.getInstance().getState(stateCode));
+        this.initialState = StateManager.getInstance().getState(stateCode);
+        this.excludedDistricts = excludedDistricts;
         this.weights = weights;
         objFuncVal = new AtomicLong(0);
         //pastMoves = new ConcurrentLinkedQueue<>();
@@ -32,6 +35,14 @@ public abstract class Algorithm {
 
     protected double getObjFuncValueByDistrict(District district, Map<Measure, Double> weights) {
         return redistrictedState.getDistrictById(district.getDistrictId()).calculateObjFuncValue(weights);
+    }
+
+    public Set<Integer> getExcludedDistricts() {
+        return excludedDistricts;
+    }
+
+    public void setExcludedDistricts(Set<Integer> excludedDistricts) {
+        this.excludedDistricts = excludedDistricts;
     }
 
     public double getObjFuncVal() {
