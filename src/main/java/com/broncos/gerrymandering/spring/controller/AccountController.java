@@ -9,9 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,6 +31,11 @@ public class AccountController {
     private String EMAIL_KEY;
     @Value("${zero}")
     private int ZERO;
+    private final String EFFICIENCY_GAP = "efficiencyGap";
+    private final String COMPACTNESS = "compactness";
+    private final String POPULATION_EQQUALITY = "populationEquality";
+    private final String PARTISAN_FAIRNESS = "partisanFairness";
+
 
 
     @RequestMapping(value = "/register",
@@ -80,6 +87,30 @@ public class AccountController {
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
+    @RequestMapping(value = "weights/save",
+            method = RequestMethod.POST)
+    @ResponseStatus(value = HttpStatus.OK)
+    public ResponseEntity savePreference(@RequestBody Map<String, Object> payload) {
+        String username = (String)payload.get(USERNAME_KEY);
+        Account account = Account.getByUsername(username);
+        if(account == null) new ResponseEntity(HttpStatus.BAD_REQUEST);
+        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
+        EntityTransaction t = em.getTransaction();
+        t.begin();
+        account.setWeights((Double) payload.get(EFFICIENCY_GAP), (Double) payload.get(PARTISAN_FAIRNESS),
+                (Double) payload.get(COMPACTNESS), (Double) payload.get(POPULATION_EQQUALITY));
+        em.merge(account);
+        t.commit();
+        return new ResponseEntity(HttpStatus.OK);
+    }
 
-
+    @RequestMapping(value = "weights/load",
+            method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public Map<String, Double> savePreference(@RequestParam String username) {
+        Account account = Account.getByUsername(username);
+        if(account == null)
+            throw new IllegalArgumentException("Username doesn't exist");
+        return account.getWeights();
+    }
 }

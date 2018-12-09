@@ -3,7 +3,9 @@ package com.broncos.gerrymandering.model;
 import com.broncos.gerrymandering.util.DefaultEntityManagerFactory;
 
 import java.security.MessageDigest;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.persistence.*;
 import java.io.Serializable;
@@ -25,6 +27,14 @@ public class Account implements Serializable{
     private UUID password;
     @Column(name = "USERNAME", unique=true)
     private String username;
+    @Column(name = "EFFICIENCY_GAP")
+    private Double efficiencyGap;
+    @Column(name = "COMPACTNESS")
+    private Double compactness;
+    @Column(name = "PARTISAN_FAIRNESS")
+    private Double partisanFairness;
+    @Column(name = "POPULATION_EQUALITY")
+    private Double populationEquality;
 
     public Account() {
     }
@@ -71,6 +81,23 @@ public class Account implements Serializable{
             e.printStackTrace();
             return false;
         }
+    }
+
+    public void setWeights(Double efficiencyGap, Double partisanFairness,
+                           Double compactness, Double populationEquality) {
+        this.efficiencyGap = efficiencyGap;
+        this.partisanFairness = partisanFairness;
+        this.compactness = compactness;
+        this.populationEquality = populationEquality;
+    }
+
+    public Map<String, Double> getWeights() {
+        return new HashMap<String, Double>(){{
+            put("efficiencyGap", efficiencyGap);
+            put("partisanFairness", partisanFairness);
+            put("compactness", compactness);
+            put("populationEquality", populationEquality);
+        }};
     }
 
     @Override
