@@ -10,8 +10,6 @@ import javax.persistence.EntityManager;
 @EntityScan({"com.broncos.gerrymandering.model"})
 public class GerrymanderingApplication {
 
-    private EntityManager em;
-
     public static void main(String[] args) {
         SpringApplication.run(GerrymanderingApplication.class, args);
     }

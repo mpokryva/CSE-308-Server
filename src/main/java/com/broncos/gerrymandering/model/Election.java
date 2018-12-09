@@ -20,13 +20,13 @@ public class Election implements Serializable {
     private Integer democratVotes;
     @Column(name = "YEAR")
     private short year;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "STATE_ID")
     private State state;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "DISTRICT_ID")
     private District district;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "PRECINCT_ID")
     private Precinct precinct;
 

@@ -12,10 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by mpokr on 11/25/2018.
@@ -42,9 +39,8 @@ public class GeoController {
         StateManager sm = StateManager.getInstance();
         State state = sm.getState(stateCode);
         Map<Integer, BoundaryWrapper> boundaryByDistrictId = new HashMap<>();
-        Iterator<District> it = state.districtIterator();
-        while (it.hasNext()) {
-            District district = it.next();
+        Set<District> districts = state.getDistricts();
+        for (District district : districts) {
             boundaryByDistrictId.put(district.getDistrictId(), new BoundaryWrapper(district.getBoundary()));
         }
         return boundaryByDistrictId;
@@ -60,10 +56,9 @@ public class GeoController {
         if (district == null) {
             return null;
         }
-        Iterator<Precinct> it = district.precinctIterator();
+        Set<Precinct> precincts = district.getPrecincts();
         Map<Integer, BoundaryWrapper> boundaryByPrecinctId = new HashMap<>();
-        while (it.hasNext()) {
-            Precinct precinct = it.next();
+        for (Precinct precinct : precincts) {
             boundaryByPrecinctId.put(precinct.getPrecinctId(), new BoundaryWrapper(precinct.getBoundary()));
         }
         return boundaryByPrecinctId;

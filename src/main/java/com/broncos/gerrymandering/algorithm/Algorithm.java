@@ -3,11 +3,7 @@ package com.broncos.gerrymandering.algorithm;
 import com.broncos.gerrymandering.model.*;
 import com.broncos.gerrymandering.util.StateManager;
 
-import java.util.List;
-import java.util.Queue;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class Algorithm {
@@ -38,6 +34,9 @@ public abstract class Algorithm {
     }
 
     public Set<Integer> getExcludedDistricts() {
+        if (excludedDistricts == null) {
+            excludedDistricts = new HashSet<>();
+        }
         return excludedDistricts;
     }
 
@@ -89,7 +88,9 @@ public abstract class Algorithm {
         this.redistrictedState = redistrictedState;
     }
 
-    public void setTerminated(boolean terminated) { this.terminated = terminated; }
+    public void setTerminated(boolean terminated) {
+        this.terminated = terminated;
+    }
 
 //    public void addMove(Move move) {
 //        pastMoves.add(move);
