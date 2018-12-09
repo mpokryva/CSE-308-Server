@@ -66,8 +66,8 @@ public class AlgorithmController {
     @RequestMapping(value = "/get-update",
             method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public ResponseEntity getUpdate(@RequestParam SessionIdDTO sessionIdDTO) {
-        UUID sessionUUID = UUID.fromString(sessionIdDTO.getSessionId());
+    public ResponseEntity getUpdate(@RequestParam String sessionId) {
+        UUID sessionUUID = UUID.fromString(sessionId);
         Algorithm algorithm = AlgorithmManager.getInstance().getAlgorithm(sessionUUID);
         if (algorithm != null) {
 //            return algorithm.flushPastMoves();
