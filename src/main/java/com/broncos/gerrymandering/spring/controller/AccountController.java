@@ -35,7 +35,7 @@ public class AccountController {
             method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public ResponseEntity register(@RequestBody Map<String, String> payload, HttpServletResponse resp) {
-        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
         em.getTransaction().begin();
         Account account = new Account(payload.get(EMAIL_KEY), payload.get(PASSWORD_KEY), payload.get(USERNAME_KEY));
         try {

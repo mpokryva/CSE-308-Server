@@ -19,15 +19,24 @@ public class AlgorithmDTO {
     private String variation;
     private int regions;
 
-    public AlgorithmDTO() { }
+    public AlgorithmDTO() {
+    }
 
-    public Set<Integer> getSeedIds() { return seedIds; }
+    public Set<Integer> getSeedIds() {
+        return seedIds;
+    }
 
-    public void setSeedIds(Set<Integer> seedPrecincts) { this.seedIds = seedPrecincts; }
+    public void setSeedIds(Set<Integer> seedPrecincts) {
+        this.seedIds = seedPrecincts;
+    }
 
-    public Set<Integer> getExcludedDistricts() { return excludedDistricts; }
+    public Set<Integer> getExcludedDistricts() {
+        return excludedDistricts;
+    }
 
-    public void setExcludedDistricts(Set<Integer> excludedDistricts) { this.excludedDistricts = excludedDistricts; }
+    public void setExcludedDistricts(Set<Integer> excludedDistricts) {
+        this.excludedDistricts = excludedDistricts;
+    }
 
     public int getRegions() {
         return regions;
@@ -53,7 +62,9 @@ public class AlgorithmDTO {
         this.stateCode = stateCode;
     }
 
-    public Map<Measure, Double> getWeights() { return weights; }
+    public Map<Measure, Double> getWeights() {
+        return weights;
+    }
 
     public void setWeights(Map<Measure, Double> weights) {
         this.weights = weights;

@@ -77,11 +77,19 @@ public class Precinct implements Serializable {
         this.district = district;
     }
 
+    public void setState(State state) {
+        this.state = state;
+    }
+
     public Precinct getRandomNeighbor() {
         Optional<Precinct> optPrecinct = neighbors.stream()
                 .skip((int) (Math.random() * neighbors.size()))
                 .findFirst();
         return optPrecinct.orElseThrow(() -> new IllegalStateException("Precinct with id " + this.precinctId + " has no neighbors."));
+    }
+
+    public State getState() {
+        return state;
     }
 
     @Override
