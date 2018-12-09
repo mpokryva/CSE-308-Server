@@ -48,15 +48,18 @@ public class District implements Serializable {
     @MapKey(name = "year")
     @Where(clause = "PRECINCT_ID IS NULL")
     private Map<Short, Election> electionByYear;
+    @Column(name = "ORIGINAL")
+    private Boolean isOriginal;
     private transient Set<Precinct> borderPrecincts;
     private transient Map<Measure, Double> valueByMeasure;
 
     public District() {
     }
 
-    public District(int districtId, State state) {
+    public District(int districtId, State state, boolean isOriginal) {
         this.districtId = districtId;
         this.state = state;
+        this.isOriginal = isOriginal;
         precinctById = new HashMap<>();
         population = 0;
         electionByYear = new HashMap<>();
@@ -82,10 +85,10 @@ public class District implements Serializable {
         return precinctById.get(precinctId);
     }
 
-    public Set<Precinct> getPrecincts() { return (Set)precinctById.values(); }
+    public Set<Precinct> getPrecincts() { return new HashSet<>(precinctById.values()); }
 
-    public Iterator<Precinct> precinctIterator() {
-        return precinctById.values().iterator();
+    public Boolean getOriginal() {
+        return isOriginal;
     }
 
     public Precinct getRandomPrecinct() {
@@ -197,6 +200,7 @@ public class District implements Serializable {
     public void addPrecinct(Precinct precinct) {
         precinctById.put(precinct.getPrecinctId(), precinct);
         precinct.setDistrict(this);
+        precinct.setState(this.state);
         //check if geometry is MultiPolygon
         if (boundary == null) {
             boundary = precinct.getBoundary();
@@ -222,6 +226,7 @@ public class District implements Serializable {
     public void removePrecinct(Precinct precinct) {
         precinctById.remove(precinct.getPrecinctId());
         precinct.setDistrict(null);
+        precinct.setState(null);
         //check if geometry is MultiPolygon
         geometry = getGeometry().difference(precinct.getGeometry());
         GeoJSONWriter writer = new GeoJSONWriter();

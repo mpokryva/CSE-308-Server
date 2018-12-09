@@ -18,7 +18,7 @@ public class DefaultEntityManagerFactory {
     private static EntityManagerFactory emf;
     private static EntityManager em;
 
-    public static EntityManagerFactory getInstance() {
+    private static EntityManagerFactory getInstance() {
         if (emf == null) {
             emf = Persistence.createEntityManagerFactory(DB_NAME);
         }

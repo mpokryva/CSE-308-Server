@@ -58,7 +58,7 @@ public class Account implements Serializable{
     }
 
     public static Account getByUsername(String username) {
-        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
         final String qText = "SELECT a FROM ACCOUNT a WHERE a.username = :username";
         Query query = em.createQuery(qText);
         query.setParameter("username", username);
@@ -111,7 +111,7 @@ public class Account implements Serializable{
 
 
     public static void main(String[] args) {
-        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
         em.getTransaction().begin();
         Account a = getByUsername("test2");
         System.out.println(a.checkPassword("1234"));

@@ -42,6 +42,8 @@ public class State implements Serializable {
     @MapKey(name = "year")
     @Where(clause = "PRECINCT_ID IS NULL AND DISTRICT_ID IS NULL")
     private Map<Short, Election> electionByYear;
+    @Column(name = "ORIGINAL")
+    private Boolean isOriginal;
 
     public State() {
     }
@@ -62,14 +64,12 @@ public class State implements Serializable {
         return districtById.get(districtId);
     }
 
-    public Map<Integer, District> getDistrictMap() { return districtById; }
+    public Map<Integer, District> getDistrictMap() {
+        return districtById;
+    }
 
     public Set<District> getDistricts() {
         return new HashSet<>(districtById.values());
-    }
-
-    public Iterator<District> districtIterator() {
-        return districtById.values().iterator();
     }
 
     public Map<Short, Election> getElectionByYear() {
@@ -80,6 +80,10 @@ public class State implements Serializable {
         return boundary;
     }
 
+    public Boolean isOriginal() {
+        return isOriginal;
+    }
+
     public State cloneForRG() {
         State state = new State();
         state.stateCode = stateCode;
@@ -88,10 +92,11 @@ public class State implements Serializable {
         state.geometry = geometry;
         state.constitutionText = constitutionText;
         state.districtById = new ConcurrentHashMap<>();
-        state.electionByYear = electionByYear;
+        state.electionByYear = new HashMap<>(electionByYear);
+        state.isOriginal = false;
         return state;
     }
-    
+
 
     public District getRandomDistrict() {
         Optional<District> optDistrict = districtById.values()
@@ -105,8 +110,8 @@ public class State implements Serializable {
     public double getObjFuncVal(Map<Measure, Double> weights) {
         double wastedVoteDifferenceTotal = 0;
         double polsbySum = 0;
-        for(District district: districtById.values()) {
-            for (Measure measure: Measure.values()) {
+        for (District district : districtById.values()) {
+            for (Measure measure : Measure.values()) {
                 switch (measure) {
                     case EFFICIENCY_GAP:
                         wastedVoteDifferenceTotal += district.getValueByMeasure(measure);
