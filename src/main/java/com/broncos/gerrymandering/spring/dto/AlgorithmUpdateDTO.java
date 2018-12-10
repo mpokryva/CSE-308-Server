@@ -14,17 +14,19 @@ import java.util.Set;
 public class AlgorithmUpdateDTO {
     public Map<Integer, BoundaryWrapper> districtBoundaries;
     double objFuncVal;
+    boolean isTerminated;
 
     public AlgorithmUpdateDTO() {
         districtBoundaries = new HashMap<>();
     }
 
-    public AlgorithmUpdateDTO(Set<District> districts, double objFuncVal) {
+    public AlgorithmUpdateDTO(Set<District> districts, double objFuncVal, boolean isTerminated) {
         districtBoundaries = new HashMap<>();
         for (District district: districts) {
             districtBoundaries.put(district.getDistrictId(), new BoundaryWrapper(district.getBoundary()));
         }
         this.objFuncVal = objFuncVal;
+        this.isTerminated = isTerminated;
     }
 
     public Map<Integer, BoundaryWrapper> getDistrictBoundaries() {
@@ -42,4 +44,8 @@ public class AlgorithmUpdateDTO {
     public void setObjFuncVal(double objFuncVal) {
         this.objFuncVal = objFuncVal;
     }
+
+    public boolean isTerminated() { return isTerminated; }
+
+    public void setTerminated(boolean terminated) { isTerminated = terminated; }
 }

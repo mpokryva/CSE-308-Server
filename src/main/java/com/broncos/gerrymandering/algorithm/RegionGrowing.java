@@ -79,6 +79,7 @@ public class RegionGrowing extends Algorithm {
             }
         }
         fixHoles();
+        setTerminated(true);
         return getRedistrictedState();
     }
 

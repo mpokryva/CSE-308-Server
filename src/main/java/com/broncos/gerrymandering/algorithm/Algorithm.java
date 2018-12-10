@@ -52,7 +52,7 @@ public abstract class Algorithm {
         this.objFuncVal.set(Double.doubleToLongBits(objFuncVal));
     }
 
-    protected boolean isTerminated() {
+    public boolean isTerminated() {
         return terminated;
     }
 
