@@ -3,6 +3,8 @@ package com.broncos.gerrymandering.spring.dto;
 import com.broncos.gerrymandering.model.Measure;
 import com.broncos.gerrymandering.model.StateCode;
 
+import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,13 +12,20 @@ import java.util.Set;
  * Created by kristiancharbonneau on 12/3/18.
  */
 public class AlgorithmDTO {
+
+    @NotNull
     private String username;
+    @NotNull
     private StateCode stateCode;
+    @NotNull
     private Map<Measure, Double> weights;
     private Set<Integer> seedIds;
     private Set<Integer> excludedDistricts;
+    @NotNull
     private String type;
+    @NotNull
     private String variation;
+    @NotNull
     private int regions;
 
     public AlgorithmDTO() {
@@ -35,7 +44,11 @@ public class AlgorithmDTO {
     }
 
     public void setExcludedDistricts(Set<Integer> excludedDistricts) {
-        this.excludedDistricts = excludedDistricts;
+        if (excludedDistricts == null) {
+            this.excludedDistricts = new HashSet<>();
+        } else {
+            this.excludedDistricts = excludedDistricts;
+        }
     }
 
     public int getRegions() {

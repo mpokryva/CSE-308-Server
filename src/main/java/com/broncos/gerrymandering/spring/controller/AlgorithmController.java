@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.UUID;
 
 /**
@@ -28,8 +29,13 @@ public class AlgorithmController {
 
     @PostMapping(value = "/new",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public NewAlgorithmResponse newAlgorithm(@RequestBody AlgorithmDTO algorithmDTO) {
+    public NewAlgorithmResponse newAlgorithm(@Valid @RequestBody AlgorithmDTO algorithmDTO) {
         System.out.println(algorithmDTO.getRegions());
+        if (algorithmDTO.getExcludedDistricts() != null &&
+                algorithmDTO.getRegions() < algorithmDTO.getExcludedDistricts().size()) {
+            throw new IllegalArgumentException("Number of regions cannot be less than number of " +
+                    "excluded districts.");
+        }
         UUID sessionId = UUID.randomUUID();
         Runnable runnable = () -> {
             Algorithm algorithm;

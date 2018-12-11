@@ -21,17 +21,19 @@ public class RegionGrowing extends Algorithm {
         this.unassignedPrecincts = new HashSet<>();
         this.regions = regions;
         this.setRedistrictedState(getInitialState().cloneForRG());
-        for (District district : getInitialState().getDistricts()) {
-            if (this.getExcludedDistricts().contains(district.getDistrictId())) {
-                District excDistrict = new District(district.getDistrictId(), getRedistrictedState(), false);
-                for (Precinct precinct : district.getPrecincts()) {
-                    excDistrict.addPrecinct(precinct);
+        for (District originalDistrict : getInitialState().getDistricts()) {
+            Set<Precinct> clonedPrecincts = new HashSet<>();
+            for (Precinct precinct : originalDistrict.getPrecincts()) {
+                clonedPrecincts.add(precinct.cloneForRG());
+            }
+            if (this.getExcludedDistricts().contains(originalDistrict.getDistrictId())) {
+                District excDistrict = new District(originalDistrict.getDistrictId(), getRedistrictedState(), false);
+                for (Precinct clonedPrecinct : clonedPrecincts) {
+                    excDistrict.addPrecinct(clonedPrecinct);
                 }
                 getRedistrictedState().addDistrict(excDistrict);
             } else {
-                for (Precinct precinct : district.getPrecincts()) {
-                    unassignedPrecincts.add(precinct);
-                }
+                unassignedPrecincts.addAll(clonedPrecincts);
             }
         }
         Set<Precinct> seedPrecincts = selectSeedPrecincts(criterion, seedIds);
@@ -87,7 +89,7 @@ public class RegionGrowing extends Algorithm {
         Set<Precinct> seedPrecincts = new HashSet<>();
         State initialState = getInitialState();
         if (criterion == SeedPrecinctCriterion.RANDOM) {
-            for (int i = 0; i < this.regions; i++) {
+            for (int i = 0; i < this.regions - getExcludedDistricts().size(); i++) {
                 District district = initialState.getRandomDistrict();
                 while (this.getExcludedDistricts().contains(district.getDistrictId())) {
                     district = initialState.getRandomDistrict();
@@ -110,7 +112,7 @@ public class RegionGrowing extends Algorithm {
     private Precinct nextPrecinctToMove(District district) {
         for (Precinct precinct : district.getBorderPrecincts()) {
             Precinct neighbor = precinct.getRandomNeighbor();
-            if (unassignedPrecincts.contains(neighbor)) {
+            if (neighbor != null && unassignedPrecincts.contains(neighbor)) {
                 return neighbor;
             }
         }

@@ -1,5 +1,6 @@
 package com.broncos.gerrymandering.model;
 
+import com.broncos.gerrymandering.util.DefaultEntityManagerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -85,16 +86,11 @@ public class State implements Serializable {
     }
 
     public State cloneForRG() {
-        State state = new State();
-        state.stateCode = stateCode;
-        state.name = name;
-        state.boundary = boundary;
-        state.geometry = geometry;
-        state.constitutionText = constitutionText;
-        state.districtById = new ConcurrentHashMap<>();
-        state.electionByYear = new HashMap<>(electionByYear);
-        state.isOriginal = false;
-        return state;
+        State clone = DefaultEntityManagerFactory.getEntityManager().find(State.class, this.id);
+        clone.id = null;
+        clone.districtById = new ConcurrentHashMap<>();
+        clone.isOriginal = false;
+        return clone;
     }
 
 

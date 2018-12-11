@@ -1,5 +1,6 @@
 package com.broncos.gerrymandering.model;
 
+import com.broncos.gerrymandering.util.DefaultEntityManagerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.broncos.gerrymandering.util.GeoValidation;
 import org.hibernate.annotations.Type;
@@ -50,6 +51,12 @@ public class Precinct implements Serializable {
 
     }
 
+    public Precinct cloneForRG() {
+        Precinct clone = DefaultEntityManagerFactory.getEntityManager().find(Precinct.class, this.id);
+        clone.id = null;
+        return clone;
+    }
+
     public Integer getPrecinctId() {
         return precinctId;
     }
@@ -87,7 +94,7 @@ public class Precinct implements Serializable {
         Optional<Precinct> optPrecinct = neighbors.stream()
                 .skip((int) (Math.random() * neighbors.size()))
                 .findFirst();
-        return optPrecinct.orElseThrow(() -> new IllegalStateException("Precinct with id " + this.precinctId + " has no neighbors."));
+        return optPrecinct.orElse(null);
     }
 
     public State getState() {

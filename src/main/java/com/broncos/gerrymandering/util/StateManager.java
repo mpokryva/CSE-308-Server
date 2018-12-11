@@ -28,7 +28,7 @@ public class StateManager {
         idByStateCode = new HashMap<>();
         statesByCode = new HashMap<>();
         EntityManager em = DefaultEntityManagerFactory.getEntityManager();
-        final String qText = "SELECT s.id, s.stateCode FROM STATE s";
+        final String qText = "SELECT s.id, s.stateCode FROM STATE s WHERE original = 1";
         Query query = em.createQuery(qText);
         List<Object[]> results = query.getResultList();
         for (Object[] result : results) {
