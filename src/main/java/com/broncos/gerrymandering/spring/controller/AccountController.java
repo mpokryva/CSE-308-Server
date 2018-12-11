@@ -95,12 +95,13 @@ public class AccountController {
         Account account = Account.getByUsername(username);
         if(account == null) new ResponseEntity(HttpStatus.BAD_REQUEST);
         EntityManager em = DefaultEntityManagerFactory.getEntityManager();
-        EntityTransaction t = em.getTransaction();
-        t.begin();
+        if(em.getTransaction().isActive())
+            em.getTransaction().rollback();
+        em.getTransaction().begin();
         account.setWeights((Double) payload.get(EFFICIENCY_GAP), (Double) payload.get(PARTISAN_FAIRNESS),
                 (Double) payload.get(COMPACTNESS), (Double) payload.get(POPULATION_EQQUALITY));
         em.merge(account);
-        t.commit();
+        em.getTransaction().commit();
         return new ResponseEntity(HttpStatus.OK);
     }
 
