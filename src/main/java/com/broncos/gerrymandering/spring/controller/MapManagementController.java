@@ -40,6 +40,9 @@ public class MapManagementController {
                 throw new IllegalStateException("District state not equal!!");
             } else {
                 for (Precinct precinct : district.getPrecincts()) {
+                    em.detach(precinct);
+                    precinct.setElection(null);
+                    precinct.setId(null);
                     if (precinct.getState() != state) {
                         throw new IllegalStateException("Precinct state not equal!!");
                     }
@@ -49,7 +52,7 @@ public class MapManagementController {
                 }
             }
         }
-//        em.persist(state);
+        em.persist(state);
 
         Session session = new Session(sessionUUID, state, saveMapDTO.getUsername());
         em.persist(session);

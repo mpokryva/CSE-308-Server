@@ -1,10 +1,12 @@
 package com.broncos.gerrymandering.algorithm;
 
 import com.broncos.gerrymandering.model.*;
+import com.broncos.gerrymandering.util.DefaultEntityManagerFactory;
 import com.broncos.gerrymandering.util.StateManager;
 import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.prep.PreparedPolygon;
 
+import javax.persistence.EntityManager;
 import java.util.*;
 
 
@@ -87,7 +89,7 @@ public class RegionGrowing extends Algorithm {
         Set<Precinct> seedPrecincts = new HashSet<>();
         State initialState = getInitialState();
         if (criterion == SeedPrecinctCriterion.RANDOM) {
-            for (int i = 0; i < this.regions; i++) {
+            for (int i = 0; i < (this.regions - getExcludedDistricts().size()); i++) {
                 District district = initialState.getRandomDistrict();
                 while (this.getExcludedDistricts().contains(district.getDistrictId())) {
                     district = initialState.getRandomDistrict();

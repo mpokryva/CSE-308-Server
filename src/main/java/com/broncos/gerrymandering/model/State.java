@@ -92,7 +92,8 @@ public class State implements Serializable {
         state.geometry = geometry;
         state.constitutionText = constitutionText;
         state.districtById = new ConcurrentHashMap<>();
-        state.electionByYear = new HashMap<>(electionByYear);
+        state.electionByYear = new HashMap<>();
+        state.electionByYear.put(CURRENT_YEAR, electionByYear.get(CURRENT_YEAR).clone());
         state.isOriginal = false;
         return state;
     }

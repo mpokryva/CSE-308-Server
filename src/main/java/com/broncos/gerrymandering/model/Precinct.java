@@ -75,12 +75,20 @@ public class Precinct implements Serializable {
 
     public District getDistrict() { return district; }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public void setDistrict(District district) {
         this.district = district;
     }
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    public void setElection(Map<Short, Election> electionByYear) {
+        this.electionByYear = electionByYear;
     }
 
     public Precinct getRandomNeighbor() {

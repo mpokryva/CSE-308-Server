@@ -39,7 +39,9 @@ public class Election implements Serializable {
         this.democratVotes = democratVotes;
         this.year = year;
     }
-
+    public Election clone() {
+        return new Election(votingAgePopulation, republicanVotes, democratVotes, year);
+    }
     public Integer getRepublicanVotes() {
         return republicanVotes;
     }
