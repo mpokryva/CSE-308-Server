@@ -2,9 +2,7 @@ package com.broncos.gerrymandering.spring.controller;
 
 import com.broncos.gerrymandering.algorithm.Algorithm;
 import com.broncos.gerrymandering.algorithm.AlgorithmManager;
-import com.broncos.gerrymandering.model.District;
-import com.broncos.gerrymandering.model.Precinct;
-import com.broncos.gerrymandering.model.State;
+import com.broncos.gerrymandering.model.*;
 import com.broncos.gerrymandering.spring.dto.SaveMapDTO;
 import com.broncos.gerrymandering.util.DefaultEntityManagerFactory;
 import org.hibernate.Hibernate;
@@ -36,22 +34,25 @@ public class MapManagementController {
         em.getTransaction().begin();
         if (state.isOriginal()) {
             throw new IllegalStateException("State cannot be an original state");
-        }
+    }
         for (District district : state.getDistricts()) {
             if (district.getState() != state) {
-                System.out.println("District state not equal!!");
+                throw new IllegalStateException("District state not equal!!");
             } else {
                 for (Precinct precinct : district.getPrecincts()) {
                     if (precinct.getState() != state) {
-                        System.out.println("Precinct state not equal!!");
+                        throw new IllegalStateException("Precinct state not equal!!");
                     }
                     if (precinct.getDistrict() != district) {
-                        System.out.println("Precinct district not equal!!");
+                        throw new IllegalStateException("Precinct district not equal!!");
                     }
                 }
             }
         }
-        em.persist(state);
+//        em.persist(state);
+
+        Session session = new Session(sessionUUID, state, saveMapDTO.getUsername());
+        em.persist(session);
         em.getTransaction().commit();
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }

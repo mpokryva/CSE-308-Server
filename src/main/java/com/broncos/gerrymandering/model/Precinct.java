@@ -1,6 +1,7 @@
 package com.broncos.gerrymandering.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.broncos.gerrymandering.util.GeoValidation;
 import org.hibernate.annotations.Type;
 import org.locationtech.jts.geom.Geometry;
 import org.wololo.jts2geojson.GeoJSONReader;
@@ -56,7 +57,8 @@ public class Precinct implements Serializable {
     public Geometry getGeometry() {
         if (geometry == null) {
             GeoJSONReader reader = new GeoJSONReader();
-            geometry = reader.read(boundary);
+            geometry = GeoValidation.validate(reader.read(boundary));
+
         }
         return geometry;
     }

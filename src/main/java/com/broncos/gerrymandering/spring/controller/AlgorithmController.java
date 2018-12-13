@@ -73,7 +73,7 @@ public class AlgorithmController {
 //            return algorithm.flushPastMoves();
             State redistrictedState = algorithm.getRedistrictedState();
             return ResponseEntity.status(HttpStatus.OK).body(new AlgorithmUpdateDTO(redistrictedState.getDistricts(),
-                    algorithm.getObjFuncVal()));
+                    algorithm.getObjFuncVal(), algorithm.isTerminated()));
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }

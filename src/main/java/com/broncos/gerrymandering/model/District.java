@@ -244,19 +244,4 @@ public class District implements Serializable {
         updateMeasures();
     }
 
-    public static void main(String[] args) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("broncos");
-        EntityManager em = emf.createEntityManager();
-        District d = em.find(District.class, 5);
-        System.out.println(d.boundary);
-        System.out.println(d.getGeometry());
-//        for (Precinct precinct : d.precinctById) {
-//            System.out.println(precinct);
-//        }
-//        for (Election election : d.electionByYear.values()) {
-//            System.out.println(election.getDemocratVotes());
-//            System.out.println(election.getYear());
-//        }
-    }
-
 }
