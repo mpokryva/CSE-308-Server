@@ -37,7 +37,7 @@ public class Precinct implements Serializable {
     private String boundary;
     @JsonIgnore
     private transient Geometry geometry;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "PRECINCT_NEIGHBOR",
             joinColumns = @JoinColumn(name = "PRECINCT_ID", referencedColumnName = "ID"),
             inverseJoinColumns = @JoinColumn(name = "NEIGHBOR_ID", referencedColumnName = "ID"))

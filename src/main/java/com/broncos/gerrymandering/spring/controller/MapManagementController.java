@@ -41,6 +41,22 @@ public class MapManagementController {
             } else {
                 for (Precinct precinct : district.getPrecincts()) {
                     em.detach(precinct);
+//                    precinct.setElection(null);
+//                    precinct.setId(null);
+                    if (precinct.getState() != state) {
+                        throw new IllegalStateException("Precinct state not equal!!");
+                    }
+                    if (precinct.getDistrict() != district) {
+                        throw new IllegalStateException("Precinct district not equal!!");
+                    }
+                }
+            }
+        }
+        for (District district : state.getDistricts()) {
+            if (district.getState() != state) {
+                throw new IllegalStateException("District state not equal!!");
+            } else {
+                for (Precinct precinct : district.getPrecincts()) {
                     precinct.setElection(null);
                     precinct.setId(null);
                     if (precinct.getState() != state) {
