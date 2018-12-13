@@ -1,6 +1,7 @@
 package com.broncos.gerrymandering.model;
 
 import com.broncos.gerrymandering.util.DefaultEntityManagerFactory;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.security.MessageDigest;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ public class Account implements Serializable{
     @GeneratedValue
     private int id;
     @Column(name = "IS_ADMIN")
+    @JsonIgnore
     private boolean isAdmin;
     @Column(name = "EMAIL", unique=true)
     private String email;
@@ -57,6 +59,10 @@ public class Account implements Serializable{
         return username;
     }
 
+    public boolean isAdmin() { return isAdmin; }
+
+    public String getEmail() { return email; }
+
     public static Account getByUsername(String username) {
         EntityManager em = DefaultEntityManagerFactory.getEntityManager();
         final String qText = "SELECT a FROM ACCOUNT a WHERE a.username = :username";
@@ -81,6 +87,11 @@ public class Account implements Serializable{
             e.printStackTrace();
             return false;
         }
+    }
+
+    public void update(String email, String username) {
+        this.email = email;
+        this.username = username;
     }
 
     public void setWeights(Double efficiencyGap, Double partisanFairness,

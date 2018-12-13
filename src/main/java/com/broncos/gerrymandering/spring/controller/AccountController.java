@@ -14,6 +14,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -49,6 +50,7 @@ public class AccountController {
             em.persist(account);
             em.getTransaction().commit();
             resp.addCookie(new Cookie(USERNAME_KEY, account.getUsername()));
+            resp.addCookie(new Cookie("isAdmin", account.isAdmin() ? "true" : "false"));
             return new ResponseEntity(HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -62,6 +64,7 @@ public class AccountController {
         Account account = Account.getByUsername(payload.get(USERNAME_KEY));
         if (account != null && account.checkPassword(payload.get(PASSWORD_KEY))) {
             resp.addCookie(new Cookie(USERNAME_KEY, account.getUsername()));
+            resp.addCookie(new Cookie("isAdmin", account.isAdmin() ? "true" : "false"));
             return new ResponseEntity(HttpStatus.OK);
         }else {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -87,7 +90,46 @@ public class AccountController {
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value = "weights/save",
+    @RequestMapping(value = "/get-accounts",
+            method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<Account> getAccounts(@RequestParam String username) {
+        Account account = Account.getByUsername(username);
+        if (!account.isAdmin()) return null;
+        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
+        List<Account> accounts = em.createQuery("SELECT a FROM ACCOUNT a WHERE a.isAdmin = false").getResultList();
+        return accounts;
+    }
+
+    @RequestMapping(value = "/update-account",
+            method = RequestMethod.POST)
+    @ResponseStatus(value = HttpStatus.OK)
+    public ResponseEntity updateAccount(@RequestBody Map<String, String> payload) {
+        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
+        if(em.getTransaction().isActive())
+            em.getTransaction().rollback();
+        em.getTransaction().begin();
+        Account account = Account.getByUsername(payload.get("oldUsername"));
+        account.update(payload.get("email"), payload.get("username"));
+        em.getTransaction().commit();
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/delete-account",
+            method = RequestMethod.DELETE)
+    @ResponseStatus(value = HttpStatus.OK)
+    public ResponseEntity deleteAccount(@RequestParam String username) {
+        Account account = Account.getByUsername(username);
+        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
+        if(em.getTransaction().isActive())
+            em.getTransaction().rollback();
+        em.getTransaction().begin();
+        em.remove(account);
+        em.getTransaction().commit();
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/weights/save",
             method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public ResponseEntity savePreference(@RequestBody Map<String, Object> payload) {
@@ -104,7 +146,7 @@ public class AccountController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "weights/load",
+    @RequestMapping(value = "/weights/load",
             method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public Map<String, Double> savePreference(@RequestParam String username) {
