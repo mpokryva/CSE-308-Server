@@ -95,7 +95,7 @@ public class AccountController {
     @ResponseStatus(value = HttpStatus.OK)
     public List<Account> getAccounts(@RequestParam String username) {
         Account account = Account.getByUsername(username);
-        if (!account.isAdmin()) return null;
+        if (account == null || !account.isAdmin()) return null;
         EntityManager em = DefaultEntityManagerFactory.getEntityManager();
         List<Account> accounts = em.createQuery("SELECT a FROM ACCOUNT a WHERE a.isAdmin = false").getResultList();
         return accounts;
@@ -110,6 +110,8 @@ public class AccountController {
             em.getTransaction().rollback();
         em.getTransaction().begin();
         Account account = Account.getByUsername(payload.get("oldUsername"));
+        if(account == null)
+            new ResponseEntity(HttpStatus.BAD_REQUEST);
         account.update(payload.get("email"), payload.get("username"));
         em.getTransaction().commit();
         return new ResponseEntity(HttpStatus.OK);
@@ -120,6 +122,8 @@ public class AccountController {
     @ResponseStatus(value = HttpStatus.OK)
     public ResponseEntity deleteAccount(@RequestParam String username) {
         Account account = Account.getByUsername(username);
+        if(account == null)
+            new ResponseEntity(HttpStatus.BAD_REQUEST);
         EntityManager em = DefaultEntityManagerFactory.getEntityManager();
         if(em.getTransaction().isActive())
             em.getTransaction().rollback();
@@ -135,7 +139,8 @@ public class AccountController {
     public ResponseEntity savePreference(@RequestBody Map<String, Object> payload) {
         String username = (String)payload.get(USERNAME_KEY);
         Account account = Account.getByUsername(username);
-        if(account == null) new ResponseEntity(HttpStatus.BAD_REQUEST);
+        if(account == null)
+            new ResponseEntity(HttpStatus.BAD_REQUEST);
         EntityManager em = DefaultEntityManagerFactory.getEntityManager();
         if(em.getTransaction().isActive())
             em.getTransaction().rollback();
