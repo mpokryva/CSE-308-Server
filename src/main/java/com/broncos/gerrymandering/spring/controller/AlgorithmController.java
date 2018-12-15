@@ -62,6 +62,23 @@ public class AlgorithmController {
 
     }
 
+    @PostMapping(value = "/resume")
+    @ResponseStatus(value = HttpStatus.OK)
+    public ResponseEntity resumeAlgorithm(@RequestBody SessionIdDTO sessionIdDTO) {
+        UUID sessionUUID = UUID.fromString(sessionIdDTO.getSessionId());
+        Algorithm algorithm = AlgorithmManager.getInstance().getAlgorithm(sessionUUID);
+        if (algorithm == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        } else {
+            algorithm.setTerminated(false);
+            Runnable runnable = () -> algorithm.run();
+            Thread t = new Thread(runnable);
+            t.start();
+            return new ResponseEntity(HttpStatus.OK);
+        }
+
+    }
+
 
     @RequestMapping(value = "/get-update",
             method = RequestMethod.GET)

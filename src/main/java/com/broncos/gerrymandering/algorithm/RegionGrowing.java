@@ -75,8 +75,10 @@ public class RegionGrowing extends Algorithm {
                 //addMove(move);
             }
         }
-        fixHoles();
-        setTerminated(true);
+        if(!isTerminated()) {
+            fixHoles();
+            setTerminated(true);
+        }
         return getRedistrictedState();
     }
 
