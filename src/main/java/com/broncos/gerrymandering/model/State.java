@@ -110,22 +110,59 @@ public class State implements Serializable {
     public double getObjFuncVal(Map<Measure, Double> weights) {
         double wastedVoteDifferenceTotal = 0;
         double polsbySum = 0;
-        for (District district : districtById.values()) {
-            for (Measure measure : Measure.values()) {
-                switch (measure) {
-                    case EFFICIENCY_GAP:
-                        wastedVoteDifferenceTotal += district.getValueByMeasure(measure);
-                        break;
-                    case COMPACTNESS:
-                        polsbySum += district.getValueByMeasure(measure);
-                        break;
-                }
-            }
+        int population = 0;
+        int maxPop = Integer.MIN_VALUE;
+        int minPop = Integer.MAX_VALUE;
+        double maxPartisanFairness = Double.MIN_VALUE;
+        double minPartisanFairness = Double.MAX_VALUE;
+        for(District district : districtById.values()) {
+            double partisanFairness = district.getValueByMeasure(Measure.PARTISAN_FAIRNESS);
+            if(district.getPopulation() > maxPop)
+                maxPop = district.getPopulation();
+            if(district.getPopulation() < minPop)
+                minPop = district.getPopulation();
+            if(partisanFairness > maxPartisanFairness)
+                maxPartisanFairness = partisanFairness;
+            if(partisanFairness < minPartisanFairness)
+                minPartisanFairness = partisanFairness;
+            population += district.getPopulation();
+            wastedVoteDifferenceTotal += district.getValueByMeasure(Measure.EFFICIENCY_GAP);
+            polsbySum += district.getValueByMeasure(Measure.COMPACTNESS);
         }
-        int population = electionByYear.get(CURRENT_YEAR).getVotingAgePopulation();
-        double effGapTerm = 1 - ((Math.abs(wastedVoteDifferenceTotal) / population) * weights.get(Measure.EFFICIENCY_GAP));
-        double compTerm = polsbySum / getDistricts().size();
-        return effGapTerm + compTerm;
+        double effGapTerm = (1 - (Math.abs(wastedVoteDifferenceTotal) / population)) *
+                weights.get(Measure.EFFICIENCY_GAP);
+        double compTerm = (polsbySum / districtById.size()) *
+                weights.get(Measure.COMPACTNESS);
+        double popEqTerm = (1 - getPopulationVariance(population, maxPop, minPop)) *
+                weights.get(Measure.POPULATION_EQUALITY);
+        double partFairTerm = (1 - getPartisanVariance(maxPartisanFairness, minPartisanFairness)) *
+                weights.get(Measure.PARTISAN_FAIRNESS);
+        return effGapTerm + compTerm + popEqTerm + partFairTerm;
+    }
+
+    public double getPopulationVariance(int population, int max, int min) {
+        double scaledAvgPop = ((population / districtById.size()) - min) / (max - min);
+        double variance = 0;
+        for(District district: districtById.values()) {
+            double scaledPop = (double)(district.getPopulation() - min) / (max - min);
+            variance += Math.pow((scaledPop - scaledAvgPop), 2);
+        }
+        return variance / districtById.size();
+
+    }
+
+    public double getPartisanVariance(double max, double min) {
+        Election stateElection = electionByYear.get(CURRENT_YEAR);
+        max = Math.max((double)stateElection.getDemocratVotes() / stateElection.getRepublicanVotes(), max);
+        double scaledAvg = (((double)stateElection.getDemocratVotes() / stateElection.getRepublicanVotes()) - min)
+                / (max - min);
+        double variance = 0;
+        for(District district: districtById.values()) {
+            double partisanFairness = district.getValueByMeasure(Measure.PARTISAN_FAIRNESS);
+            double scaled = (partisanFairness - min) / (max - min);
+            variance += Math.pow((scaled - scaledAvg), 2);
+        }
+        return variance / districtById.size();
     }
 
     public void addDistrict(District district) {

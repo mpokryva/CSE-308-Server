@@ -37,13 +37,10 @@ public class RegionGrowing extends Algorithm {
         Set<Precinct> seedPrecincts = selectSeedPrecincts(criterion, seedIds);
         int districtId = 1;
         for (Precinct precinct : seedPrecincts) {
-            District initialDistrict = new District(districtId, getRedistrictedState(), false);
-            if (this.getExcludedDistricts().contains(districtId)) {
+            while(getExcludedDistricts().contains(districtId))
                 districtId++;
-                continue;
-            } else {
-                initialDistrict.addPrecinct(precinct);
-            }
+            District initialDistrict = new District(districtId, getRedistrictedState(), false);
+            initialDistrict.addPrecinct(precinct);
             getRedistrictedState().addDistrict(initialDistrict);
             unassignedPrecincts.remove(precinct);
             districtId++;
@@ -87,7 +84,7 @@ public class RegionGrowing extends Algorithm {
         Set<Precinct> seedPrecincts = new HashSet<>();
         State initialState = getInitialState();
         if (criterion == SeedPrecinctCriterion.RANDOM) {
-            for (int i = 0; i < this.regions; i++) {
+            for (int i = 0; i < (this.regions - getExcludedDistricts().size()) ; i++) {
                 District district = initialState.getRandomDistrict();
                 while (this.getExcludedDistricts().contains(district.getDistrictId())) {
                     district = initialState.getRandomDistrict();

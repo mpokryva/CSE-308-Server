@@ -12,6 +12,7 @@ import org.wololo.jts2geojson.GeoJSONWriter;
 import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.io.Serializable;
 import java.util.*;
 
@@ -117,6 +118,8 @@ public class District implements Serializable {
         return boundary;
     }
 
+    public Integer getPopulation() { return population; }
+
     public Set<Precinct> getBorderPrecincts() {
         if(borderPrecincts == null) {
             PreparedPolygon prepDistrict = new PreparedPolygon((Polygonal)getGeometry());
@@ -170,9 +173,9 @@ public class District implements Serializable {
     private void updateMeasures() {
         if(valueByMeasure == null) valueByMeasure = new HashMap<>();
         for(Measure measure: Measure.values()) {
+            Election currElection = electionByYear.get(CURRENT_YEAR);
             switch (measure) {
                 case EFFICIENCY_GAP:
-                    Election currElection = electionByYear.get(CURRENT_YEAR);
                     int excessVotes = Math.max(currElection.getDemocratVotes(), currElection.getRepublicanVotes())
                             - ((currElection.getDemocratVotes() + currElection.getRepublicanVotes()) / TWO);
                     int lostVotes = Math.min(currElection.getDemocratVotes(), currElection.getRepublicanVotes());
@@ -184,9 +187,13 @@ public class District implements Serializable {
                     double polsbyPopper = (4 * Math.PI * area) / Math.pow(perimeter, 2);
                     valueByMeasure.put(measure, polsbyPopper);
                     break;
+                case PARTISAN_FAIRNESS:
+                    double a = (double)currElection.getDemocratVotes() / currElection.getRepublicanVotes();
+                    valueByMeasure.put(measure,
+                            (double)currElection.getDemocratVotes() / currElection.getRepublicanVotes());
+                    break;
             }
         }
-
     }
 
     public double calculateObjFuncValue(Map<Measure, Double> weights) {
