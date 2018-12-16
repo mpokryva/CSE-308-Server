@@ -1,46 +1,45 @@
 package com.broncos.gerrymandering.algorithm;
 
 import com.broncos.gerrymandering.model.*;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
 public class SimulatedAnnealing extends Algorithm {
 
-    private final int maxSuccessiveFailures;
     private int successiveFailures;
     private DistrictSelectionCriterion criterion;
     private PriorityQueue<District> descObjValDistricts;
-    private List<District> unitialiazedDistricts;
     private double temperature;
     private static final double K = 10;
     private static final int MAX_MOVES = 10000;
+    private static final int MAX_SUCCESSIVE_FAILURES = 500;
 
     public SimulatedAnnealing(StateCode stateCode, Set<Integer> excludedDistricts,
-                              Map<Measure, Double> weights, DistrictSelectionCriterion criterion,
-                              int maxSuccessiveFailures) {
+                              Map<Measure, Double> weights, DistrictSelectionCriterion criterion) {
         super(stateCode, weights, excludedDistricts);
         setRedistrictedState(getInitialState().cloneForSA());
         this.criterion = criterion;
-        this.maxSuccessiveFailures = maxSuccessiveFailures;
         descObjValDistricts = new PriorityQueue<>(Collections.reverseOrder(new DistrictComparator(weights)));
+        this.getRedistrictedState().getDistricts().forEach(district -> district.calculateObjFuncValue(this.getWeights()));
         descObjValDistricts.addAll(this.getRedistrictedState().getDistricts());
-        unitialiazedDistricts = new ArrayList<>(this.getRedistrictedState().getDistricts());
         temperature = 1;
     }
 
     @Override
     public State run() {
         int moves = 0;
-        while (successiveFailures < maxSuccessiveFailures) {
+        while (successiveFailures < MAX_SUCCESSIVE_FAILURES && temperature != 0 && moves < MAX_MOVES) {
+            System.out.printf("SA moves #: %d\n", moves);
             District source = nextSourceDistrict();
             District destination = nextDestinationDistrict();
             Precinct precinctToMove = nextPrecinctToMove(source);
             double preMoveVal = this.getRedistrictedState().getObjFuncVal(this.getWeights());
             Move move = new Move(precinctToMove, destination, source, this.getWeights());
             move.make();
-            double delta = move.getObjFuncVal() - preMoveVal;
-            if (delta < 0) {
-                double acceptanceProb = 1 - Math.exp(delta / (K * temperature));
+            double delta = preMoveVal - move.getObjFuncVal();
+            if (delta > 0) {
+                double acceptanceProb = Math.exp(delta / (K * temperature));
                 if (new Random().nextDouble() > acceptanceProb) {
                     move.revert();
                     successiveFailures++;
@@ -55,9 +54,12 @@ public class SimulatedAnnealing extends Algorithm {
                 descObjValDistricts.remove(source);
                 descObjValDistricts.add(source);
                 descObjValDistricts.add(destination);
+                if (source.calculateObjFuncValue(this.getWeights()) != 0) {
+
+                }
             }
             moves++;
-            temperature = moves / (double) MAX_MOVES;
+            temperature = (MAX_MOVES - moves) / (double) MAX_MOVES;
         }
         setTerminated(true);
         return this.getRedistrictedState();
@@ -72,13 +74,9 @@ public class SimulatedAnnealing extends Algorithm {
     private District nextSourceDistrict() {
         District source = null;
         if (criterion == DistrictSelectionCriterion.RANDOM) {
-            source =  this.getRedistrictedState().getRandomDistrict();
-        } else if (criterion == DistrictSelectionCriterion.LOWEST_OBJ_VAL){
+            source = this.getRedistrictedState().getRandomDistrict();
+        } else if (criterion == DistrictSelectionCriterion.LOWEST_OBJ_VAL) {
             source = descObjValDistricts.peek();
-            if (source == null || source.calculateObjFuncValue(this.getWeights()) == 0) {
-                // Pick random district with 0 value, to prevent the same one being picked repeatedly.
-                source = unitialiazedDistricts.get(new Random().nextInt(unitialiazedDistricts.size()));
-            }
         }
         return source;
     }
@@ -86,16 +84,12 @@ public class SimulatedAnnealing extends Algorithm {
     private District nextDestinationDistrict() {
         District destination = null;
         if (criterion == DistrictSelectionCriterion.RANDOM) {
-            destination =  this.getRedistrictedState().getRandomDistrict();
-        } else if (criterion == DistrictSelectionCriterion.LOWEST_OBJ_VAL){
+            destination = this.getRedistrictedState().getRandomDistrict();
+        } else if (criterion == DistrictSelectionCriterion.LOWEST_OBJ_VAL) {
             District temp = descObjValDistricts.poll();
             // Get second lowest district.
-            destination = (!descObjValDistricts.isEmpty()) ? descObjValDistricts.peek() : null;
+            destination = descObjValDistricts.peek();
             descObjValDistricts.add(temp);
-            if (destination == null || destination.calculateObjFuncValue(this.getWeights()) == 0) {
-                // Pick random district with 0 value, to prevent the same one being picked repeatedly.
-                destination = unitialiazedDistricts.get(new Random().nextInt(unitialiazedDistricts.size()));
-            }
         }
         return destination;
     }

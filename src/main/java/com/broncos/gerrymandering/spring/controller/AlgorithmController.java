@@ -1,9 +1,7 @@
 package com.broncos.gerrymandering.spring.controller;
 
-import com.broncos.gerrymandering.algorithm.Algorithm;
-import com.broncos.gerrymandering.algorithm.AlgorithmManager;
-import com.broncos.gerrymandering.algorithm.RegionGrowing;
-import com.broncos.gerrymandering.algorithm.SeedPrecinctCriterion;
+import com.broncos.gerrymandering.algorithm.*;
+import com.broncos.gerrymandering.model.Measure;
 import com.broncos.gerrymandering.model.State;
 import com.broncos.gerrymandering.spring.dto.AlgorithmDTO;
 import com.broncos.gerrymandering.spring.dto.AlgorithmUpdateDTO;
@@ -14,7 +12,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.UUID;
+
+import static javax.swing.UIManager.put;
 
 /**
  * Created by kristiancharbonneau on 11/29/18.
@@ -32,13 +33,16 @@ public class AlgorithmController {
         System.out.println(algorithmDTO.getRegions());
         UUID sessionId = UUID.randomUUID();
         Runnable runnable = () -> {
-            Algorithm algorithm;
+            Algorithm algorithm = null;
             if (algorithmDTO.getType().equals(REGION_GROWING)) {
+                int regions = algorithmDTO.getRegions();
                 SeedPrecinctCriterion criterion = SeedPrecinctCriterion.valueOf(algorithmDTO.getVariation());
                 algorithm = new RegionGrowing(algorithmDTO.getStateCode(), algorithmDTO.getExcludedDistricts(),
-                        algorithmDTO.getSeedIds(), criterion, algorithmDTO.getWeights(), algorithmDTO.getRegions());
-            } else {
-                algorithm = null;
+                        algorithmDTO.getSeedIds(), criterion, algorithmDTO.getWeights(), regions);
+            } else if (algorithmDTO.getType().equals(SIMULATED_ANNEALING)) {
+                DistrictSelectionCriterion criterion = DistrictSelectionCriterion.valueOf(algorithmDTO.getVariation());
+                algorithm = new SimulatedAnnealing(algorithmDTO.getStateCode(), algorithmDTO.getExcludedDistricts(),
+                        algorithmDTO.getWeights(), criterion);
             }
             AlgorithmManager.getInstance().addAlgorithm(sessionId, algorithm);
             algorithm.run();

@@ -1,18 +1,15 @@
 package com.broncos.gerrymandering.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.*;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygonal;
 import org.locationtech.jts.geom.prep.PreparedPolygon;
-import org.springframework.format.number.money.CurrencyUnitFormatter;
 import org.wololo.jts2geojson.GeoJSONReader;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.io.Serializable;
 import java.util.*;
 
@@ -53,8 +50,10 @@ public class District implements Serializable {
     private Boolean isOriginal;
     private transient Set<Precinct> borderPrecincts;
     private transient Map<Measure, Double> valueByMeasure;
+    private transient boolean measuresUpdatedOnce = false;
 
     public District() {
+        initMeasures();
     }
 
     public District(int districtId, State state, boolean isOriginal) {
@@ -65,7 +64,7 @@ public class District implements Serializable {
         population = 0;
         electionByYear = new HashMap<>();
         electionByYear.put(CURRENT_YEAR, new Election(0, 0, 0, CURRENT_YEAR));
-
+        initMeasures();
     }
 
     public District clone() {
@@ -80,9 +79,16 @@ public class District implements Serializable {
         clone.precinctById = this.precinctById;
         clone.electionByYear = this.electionByYear;
         clone.isOriginal = false;
-        clone.borderPrecincts = this.borderPrecincts;
+        clone.borderPrecincts = this.getBorderPrecincts();
         clone.valueByMeasure = this.valueByMeasure;
         return clone;
+    }
+
+    private void initMeasures() {
+        valueByMeasure = new HashMap<>();
+        for (Measure value : Measure.values()) {
+            valueByMeasure.put(value, 0.0);
+        }
     }
 
     public Integer getDistrictId() {
@@ -97,13 +103,17 @@ public class District implements Serializable {
         return geometry;
     }
 
-    public State getState() { return state; }
+    public State getState() {
+        return state;
+    }
 
     public Precinct getPrecinctById(Integer precinctId) {
         return precinctById.get(precinctId);
     }
 
-    public Set<Precinct> getPrecincts() { return new HashSet<>(precinctById.values()); }
+    public Set<Precinct> getPrecincts() {
+        return new HashSet<>(precinctById.values());
+    }
 
     public Boolean getOriginal() {
         return isOriginal;
@@ -129,23 +139,27 @@ public class District implements Serializable {
         return electionByYear;
     }
 
-    public void setBoundary(String boundary) { this.boundary = boundary; }
+    public void setBoundary(String boundary) {
+        this.boundary = boundary;
+    }
 
     public String getBoundary() {
         return boundary;
     }
 
-    public Integer getPopulation() { return population; }
+    public Integer getPopulation() {
+        return population;
+    }
 
     public Set<Precinct> getBorderPrecincts() {
-        if(borderPrecincts == null) {
-            PreparedPolygon prepDistrict = new PreparedPolygon((Polygonal)getGeometry());
-            if(borderPrecincts != null)
+        if (borderPrecincts == null) {
+            PreparedPolygon prepDistrict = new PreparedPolygon((Polygonal) getGeometry());
+            if (borderPrecincts != null)
                 borderPrecincts.clear();
             else
                 borderPrecincts = new HashSet<>();
-            for(Precinct precinct: precinctById.values()) {
-                if(!prepDistrict.containsProperly(precinct.getGeometry()))
+            for (Precinct precinct : precinctById.values()) {
+                if (!prepDistrict.containsProperly(precinct.getGeometry()))
                     borderPrecincts.add(precinct);
             }
         }
@@ -153,7 +167,7 @@ public class District implements Serializable {
     }
 
     public Double getValueByMeasure(Measure measure) {
-        if(valueByMeasure == null) updateMeasures();
+        if (!measuresUpdatedOnce) updateMeasures();
         return valueByMeasure.get(measure);
     }
 
@@ -167,29 +181,28 @@ public class District implements Serializable {
     }
 
     private void updateBorderPrecincts(Precinct precinct, boolean isAdded) {
-        if(borderPrecincts == null)
+        if (borderPrecincts == null)
             getBorderPrecincts();
-        if(isAdded)
+        if (isAdded)
             borderPrecincts.add(precinct);
         else
             borderPrecincts.remove(precinct);
-        PreparedPolygon prepDistrict = new PreparedPolygon((Polygonal)getGeometry());
-        if(isAdded)
-            for(Precinct neighbor: precinct.getNeighbors()) {
-                if(borderPrecincts.contains(neighbor) && prepDistrict.containsProperly(neighbor.getGeometry()))
+        PreparedPolygon prepDistrict = new PreparedPolygon((Polygonal) getGeometry());
+        if (isAdded)
+            for (Precinct neighbor : precinct.getNeighbors()) {
+                if (borderPrecincts.contains(neighbor) && prepDistrict.containsProperly(neighbor.getGeometry()))
                     borderPrecincts.remove(neighbor);
             }
         else {
-            for(Precinct neighbor: precinct.getNeighbors()) {
-                if(precinctById.containsKey(precinct.getPrecinctId()) && !prepDistrict.containsProperly(neighbor.getGeometry()))
+            for (Precinct neighbor : precinct.getNeighbors()) {
+                if (precinctById.containsKey(precinct.getPrecinctId()) && !prepDistrict.containsProperly(neighbor.getGeometry()))
                     borderPrecincts.add(neighbor);
             }
         }
     }
 
     private void updateMeasures() {
-        if(valueByMeasure == null) valueByMeasure = new HashMap<>();
-        for(Measure measure: Measure.values()) {
+        for (Measure measure : Measure.values()) {
             Election currElection = electionByYear.get(CURRENT_YEAR);
             switch (measure) {
                 case EFFICIENCY_GAP:
@@ -205,15 +218,16 @@ public class District implements Serializable {
                     valueByMeasure.put(measure, polsbyPopper);
                     break;
                 case PARTISAN_FAIRNESS:
-                    double a = (double)currElection.getDemocratVotes() / currElection.getRepublicanVotes();
+                    double a = (double) currElection.getDemocratVotes() / currElection.getRepublicanVotes();
                     valueByMeasure.put(measure,
-                            (double)currElection.getDemocratVotes() / currElection.getRepublicanVotes());
+                            (double) currElection.getDemocratVotes() / currElection.getRepublicanVotes());
                     break;
             }
         }
     }
 
     public double calculateObjFuncValue(Map<Measure, Double> weights) {
+        if (!measuresUpdatedOnce) updateMeasures();
         double objFuncValue = 0;
         for (Measure measure : Measure.values()) {
             objFuncValue += valueByMeasure.get(measure) * weights.get(measure);
@@ -229,7 +243,7 @@ public class District implements Serializable {
         if (boundary == null) {
             boundary = precinct.getBoundary();
             geometry = precinct.getGeometry();
-        }else {
+        } else {
             geometry = getGeometry().union(precinct.getGeometry());
         }
         GeoJSONWriter writer = new GeoJSONWriter();

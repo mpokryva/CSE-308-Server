@@ -1,7 +1,9 @@
 package com.broncos.gerrymandering.spring.dto;
 
 import com.broncos.gerrymandering.model.Measure;
+import com.broncos.gerrymandering.model.State;
 import com.broncos.gerrymandering.model.StateCode;
+import com.broncos.gerrymandering.util.StateManager;
 
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +19,7 @@ public class AlgorithmDTO {
     private Set<Integer> excludedDistricts;
     private String type;
     private String variation;
-    private int regions;
+    private Integer regions;
 
     public AlgorithmDTO() {
     }
@@ -38,11 +40,15 @@ public class AlgorithmDTO {
         this.excludedDistricts = excludedDistricts;
     }
 
-    public int getRegions() {
-        return regions;
+    public Integer getRegions() {
+        if (this.regions == null) {
+            State state = StateManager.getInstance().getState(stateCode);
+            this.regions = state.getDistricts().size();
+        }
+        return this.regions;
     }
 
-    public void setRegions(int regions) {
+    public void setRegions(Integer regions) {
         this.regions = regions;
     }
 
@@ -67,6 +73,11 @@ public class AlgorithmDTO {
     }
 
     public void setWeights(Map<Measure, Double> weights) {
+        for (Measure measure : Measure.values()) {
+            if (!weights.containsKey(measure)) {
+                weights.put(measure, 0.0);
+            }
+        }
         this.weights = weights;
     }
 
