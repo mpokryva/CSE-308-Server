@@ -13,7 +13,6 @@ public class RegionGrowing extends Algorithm {
     private SeedPrecinctCriterion criterion;
     private Set<Precinct> unassignedPrecincts;
     private int regions;
-    private static final int MAX_FAILED_MOVES = 2000;
 
     public RegionGrowing(StateCode stateCode, Set<Integer> excludedDistricts, Set<Integer> seedIds,
                          SeedPrecinctCriterion criterion, Map<Measure, Double> weights, int regions) {
@@ -30,9 +29,7 @@ public class RegionGrowing extends Algorithm {
                 }
                 getRedistrictedState().addDistrict(excDistrict);
             } else {
-                for (Precinct precinct : district.getPrecincts()) {
-                    unassignedPrecincts.add(precinct);
-                }
+                unassignedPrecincts.addAll(district.getPrecincts());
             }
         }
         Set<Precinct> seedPrecincts = selectSeedPrecincts(seedIds);
@@ -53,8 +50,9 @@ public class RegionGrowing extends Algorithm {
     @Override
     public State run() {
         int failedMoves = 0;
+        int maxFailedMoves = unassignedPrecincts.size();
         while (!unassignedPrecincts.isEmpty()) {
-            if (failedMoves > MAX_FAILED_MOVES || isTerminated()) break;
+            if (failedMoves > maxFailedMoves || isTerminated()) break;
             District district = getRedistrictedState().getRandomDistrict();
             if (this.getExcludedDistricts().contains(district.getDistrictId())) continue;
             Precinct precinctToMove = nextPrecinctToMove(district);
@@ -76,8 +74,10 @@ public class RegionGrowing extends Algorithm {
                 //addMove(move);
             }
         }
-        fixHoles();
-        setTerminated(true);
+        if(!isTerminated()) {
+            fixHoles();
+            setTerminated(true);
+        }
         return getRedistrictedState();
     }
 

@@ -159,7 +159,7 @@ public class State implements Serializable {
     }
 
     public double getPopulationVariance(int population, int max, int min) {
-        double scaledAvgPop = ((population / districtById.size()) - min) / (max - min);
+        double scaledAvgPop = (((double)population / districtById.size()) - min) / (max - min);
         double variance = 0;
         for(District district: districtById.values()) {
             double scaledPop = (double)(district.getPopulation() - min) / (max - min);
