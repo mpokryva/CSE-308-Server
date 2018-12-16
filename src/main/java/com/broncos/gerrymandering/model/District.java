@@ -68,6 +68,23 @@ public class District implements Serializable {
 
     }
 
+    public District clone() {
+        District clone = new District();
+        clone.id = null;
+        clone.districtId = this.districtId;
+        clone.population = this.population;
+        clone.state = this.state;
+        clone.boundary = this.boundary;
+        clone.geometry = this.geometry;
+        clone.representative = this.representative;
+        clone.precinctById = this.precinctById;
+        clone.electionByYear = this.electionByYear;
+        clone.isOriginal = false;
+        clone.borderPrecincts = this.borderPrecincts;
+        clone.valueByMeasure = this.valueByMeasure;
+        return clone;
+    }
+
     public Integer getDistrictId() {
         return districtId;
     }

@@ -97,6 +97,24 @@ public class State implements Serializable {
         return state;
     }
 
+    public State cloneForSA() {
+        State clone = new State();
+        clone.stateCode = stateCode;
+        clone.name = name;
+        clone.boundary = boundary;
+        clone.geometry = geometry;
+        clone.constitutionText = constitutionText;
+        Map<Integer, District> districtsClone = new HashMap<>();
+        for (District district : this.getDistricts()) {
+            District districtClone = district.clone();
+            districtsClone.put(districtClone.getDistrictId(), districtClone);
+        }
+        clone.districtById = districtsClone;
+        clone.electionByYear = new HashMap<>(electionByYear);
+        clone.isOriginal = false;
+        return clone;
+    }
+
 
     public District getRandomDistrict() {
         Optional<District> optDistrict = districtById.values()

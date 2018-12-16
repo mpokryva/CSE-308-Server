@@ -16,7 +16,6 @@ public abstract class Algorithm {
     private StateCode stateCode;
     private State redistrictedState;
     private State initialState;
-    private int numSteps;
 
     public Algorithm(StateCode stateCode, Map<Measure, Double> weights, Set<Integer> excludedDistricts) {
         this.stateCode = stateCode;
@@ -40,10 +39,6 @@ public abstract class Algorithm {
         return excludedDistricts;
     }
 
-    public void setExcludedDistricts(Set<Integer> excludedDistricts) {
-        this.excludedDistricts = excludedDistricts;
-    }
-
     public double getObjFuncVal() {
         return Double.longBitsToDouble(objFuncVal.get());
     }
@@ -56,20 +51,8 @@ public abstract class Algorithm {
         return terminated;
     }
 
-    protected int getNumSteps() {
-        return numSteps;
-    }
-
     protected Map<Measure, Double> getWeights() {
         return weights;
-    }
-
-    protected void setWeights(Map<Measure, Double> weights) {
-        this.weights = weights;
-    }
-
-    protected StateCode getStateCode() {
-        return stateCode;
     }
 
     public State getRedistrictedState() {
@@ -78,10 +61,6 @@ public abstract class Algorithm {
 
     protected State getInitialState() {
         return initialState;
-    }
-
-    protected void setInitialState(State initialState) {
-        this.initialState = initialState;
     }
 
     protected void setRedistrictedState(State redistrictedState) {

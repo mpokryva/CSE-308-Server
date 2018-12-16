@@ -13,6 +13,7 @@ public class RegionGrowing extends Algorithm {
     private SeedPrecinctCriterion criterion;
     private Set<Precinct> unassignedPrecincts;
     private int regions;
+    private static final int MAX_FAILED_MOVES = 2000;
 
     public RegionGrowing(StateCode stateCode, Set<Integer> excludedDistricts, Set<Integer> seedIds,
                          SeedPrecinctCriterion criterion, Map<Measure, Double> weights, int regions) {
@@ -34,7 +35,7 @@ public class RegionGrowing extends Algorithm {
                 }
             }
         }
-        Set<Precinct> seedPrecincts = selectSeedPrecincts(criterion, seedIds);
+        Set<Precinct> seedPrecincts = selectSeedPrecincts(seedIds);
         int districtId = 1;
         for (Precinct precinct : seedPrecincts) {
             while(getExcludedDistricts().contains(districtId))
@@ -53,7 +54,7 @@ public class RegionGrowing extends Algorithm {
     public State run() {
         int failedMoves = 0;
         while (!unassignedPrecincts.isEmpty()) {
-            if (failedMoves > 2000 || isTerminated()) break;
+            if (failedMoves > MAX_FAILED_MOVES || isTerminated()) break;
             District district = getRedistrictedState().getRandomDistrict();
             if (this.getExcludedDistricts().contains(district.getDistrictId())) continue;
             Precinct precinctToMove = nextPrecinctToMove(district);
@@ -80,7 +81,7 @@ public class RegionGrowing extends Algorithm {
         return getRedistrictedState();
     }
 
-    private Set<Precinct> selectSeedPrecincts(SeedPrecinctCriterion criterion, Set<Integer> seedIds) {
+    private Set<Precinct> selectSeedPrecincts(Set<Integer> seedIds) {
         Set<Precinct> seedPrecincts = new HashSet<>();
         State initialState = getInitialState();
         if (criterion == SeedPrecinctCriterion.RANDOM) {
