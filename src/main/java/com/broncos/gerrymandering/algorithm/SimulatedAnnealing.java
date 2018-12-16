@@ -1,7 +1,6 @@
 package com.broncos.gerrymandering.algorithm;
 
 import com.broncos.gerrymandering.model.*;
-import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -11,7 +10,7 @@ public class SimulatedAnnealing extends Algorithm {
     private DistrictSelectionCriterion criterion;
     private PriorityQueue<District> descObjValDistricts;
     private double temperature;
-    private static final double K = 10;
+    private static final double K = -1e-3;
     private static final int MAX_MOVES = 10000;
     private static final int MAX_SUCCESSIVE_FAILURES = 500;
 

@@ -106,7 +106,7 @@ public class State implements Serializable {
         clone.constitutionText = constitutionText;
         Map<Integer, District> districtsClone = new HashMap<>();
         for (District district : this.getDistricts()) {
-            District districtClone = district.clone();
+            District districtClone = district.cloneForSA(clone);
             districtsClone.put(districtClone.getDistrictId(), districtClone);
         }
         clone.districtById = districtsClone;

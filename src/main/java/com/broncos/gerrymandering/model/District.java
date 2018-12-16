@@ -67,12 +67,12 @@ public class District implements Serializable {
         initMeasures();
     }
 
-    public District clone() {
+    public District cloneForSA(State state) {
         District clone = new District();
         clone.id = null;
         clone.districtId = this.districtId;
         clone.population = this.population;
-        clone.state = this.state;
+        clone.state = state;
         clone.boundary = this.boundary;
         clone.geometry = this.geometry;
         clone.representative = this.representative;
@@ -202,6 +202,7 @@ public class District implements Serializable {
     }
 
     private void updateMeasures() {
+        measuresUpdatedOnce = true;
         for (Measure measure : Measure.values()) {
             Election currElection = electionByYear.get(CURRENT_YEAR);
             switch (measure) {
@@ -218,7 +219,6 @@ public class District implements Serializable {
                     valueByMeasure.put(measure, polsbyPopper);
                     break;
                 case PARTISAN_FAIRNESS:
-                    double a = (double) currElection.getDemocratVotes() / currElection.getRepublicanVotes();
                     valueByMeasure.put(measure,
                             (double) currElection.getDemocratVotes() / currElection.getRepublicanVotes());
                     break;
