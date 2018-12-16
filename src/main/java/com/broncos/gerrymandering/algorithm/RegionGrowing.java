@@ -52,8 +52,9 @@ public class RegionGrowing extends Algorithm {
     @Override
     public State run() {
         int failedMoves = 0;
+        int maxFailedMoves = unassignedPrecincts.size();
         while (!unassignedPrecincts.isEmpty()) {
-            if (failedMoves > 2000 || isTerminated()) break;
+            if (failedMoves > maxFailedMoves || isTerminated()) break;
             District district = getRedistrictedState().getRandomDistrict();
             if (this.getExcludedDistricts().contains(district.getDistrictId())) continue;
             Precinct precinctToMove = nextPrecinctToMove(district);
