@@ -55,6 +55,7 @@ public class SimulatedAnnealing extends Algorithm {
                 descObjValDistricts.add(source);
                 descObjValDistricts.add(destination);
             }
+            setObjFuncVal(getRedistrictedState().getObjFuncVal(getWeights()));
             moves++;
             temperature = (MAX_MOVES - moves) / (double) MAX_MOVES;
         }
