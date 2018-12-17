@@ -179,7 +179,7 @@ public class District implements Serializable {
             }
         else {
             for (Precinct neighbor : precinct.getNeighbors()) {
-                if (precinctById.containsKey(precinct.getPrecinctId()) && !prepDistrict.containsProperly(neighbor.getGeometry()))
+                if (precinctById.containsKey(neighbor.getPrecinctId()) && !prepDistrict.containsProperly(neighbor.getGeometry()))
                     borderPrecincts.add(neighbor);
             }
         }

@@ -39,7 +39,6 @@ public class SimulatedAnnealing extends Algorithm {
             double delta = preMoveVal - move.getObjFuncVal();
             if (delta > 0) {
                 double acceptanceProb = Math.exp(delta / (K * temperature));
-                acceptanceProb = 0;
                 if (new Random().nextDouble() > acceptanceProb) {
                     move.revert();
                     successiveFailures++;
@@ -65,8 +64,8 @@ public class SimulatedAnnealing extends Algorithm {
 
 
     private Precinct nextPrecinctToMove(District district) {
-        Precinct borderPrecinct = district.getRandomBorderPrecinct();
-        return borderPrecinct.getRandomNeighbor();
+
+        return district.getRandomBorderPrecinct();
     }
 
     private District nextSourceDistrict() {
