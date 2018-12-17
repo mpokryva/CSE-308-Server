@@ -44,6 +44,7 @@ public class State implements Serializable {
     private Map<Short, Election> electionByYear;
     @Column(name = "ORIGINAL")
     private Boolean isOriginal;
+    private static final int OBJ_FUNC_SCALE_FACTOR = 1000;
 
     public State() {
     }
@@ -155,7 +156,7 @@ public class State implements Serializable {
                 weights.get(Measure.POPULATION_EQUALITY);
         double partFairTerm = (1 - getPartisanVariance(maxPartisanFairness, minPartisanFairness)) *
                 weights.get(Measure.PARTISAN_FAIRNESS);
-        return effGapTerm + compTerm + popEqTerm + partFairTerm;
+        return (effGapTerm + compTerm + popEqTerm + partFairTerm) * OBJ_FUNC_SCALE_FACTOR;
     }
 
     public double getPopulationVariance(int population, int max, int min) {
