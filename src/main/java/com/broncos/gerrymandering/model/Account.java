@@ -64,7 +64,7 @@ public class Account implements Serializable{
     public String getEmail() { return email; }
 
     public static Account getByUsername(String username) {
-        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
         final String qText = "SELECT a FROM ACCOUNT a WHERE a.username = :username";
         Query query = em.createQuery(qText);
         query.setParameter("username", username);
@@ -73,6 +73,7 @@ public class Account implements Serializable{
         if (results != null && results.size() > 0) {
             account = results.get(0);
         }
+        em.close();
         return account;
     }
 

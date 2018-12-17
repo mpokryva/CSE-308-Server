@@ -43,7 +43,7 @@ public class AccountController {
             method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public ResponseEntity register(@RequestBody Map<String, String> payload, HttpServletResponse resp) {
-        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
         em.getTransaction().begin();
         Account account = new Account(payload.get(EMAIL_KEY), payload.get(PASSWORD_KEY), payload.get(USERNAME_KEY));
         try {
@@ -51,8 +51,10 @@ public class AccountController {
             em.getTransaction().commit();
             resp.addCookie(new Cookie(USERNAME_KEY, account.getUsername()));
             resp.addCookie(new Cookie("isAdmin", account.isAdmin() ? "true" : "false"));
+            em.close();
             return new ResponseEntity(HttpStatus.OK);
         } catch (Exception e) {
+            em.close();
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
@@ -96,8 +98,9 @@ public class AccountController {
     public List<Account> getAccounts(@RequestParam String username) {
         Account account = Account.getByUsername(username);
         if (account == null || !account.isAdmin()) return null;
-        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
         List<Account> accounts = em.createQuery("SELECT a FROM ACCOUNT a WHERE a.isAdmin = false").getResultList();
+        em.close();
         return accounts;
     }
 
@@ -105,7 +108,7 @@ public class AccountController {
             method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public ResponseEntity updateAccount(@RequestBody Map<String, String> payload) {
-        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
         if(em.getTransaction().isActive())
             em.getTransaction().rollback();
         em.getTransaction().begin();
@@ -114,6 +117,7 @@ public class AccountController {
             new ResponseEntity(HttpStatus.BAD_REQUEST);
         account.update(payload.get("email"), payload.get("username"));
         em.getTransaction().commit();
+        em.close();
         return new ResponseEntity(HttpStatus.OK);
     }
 
@@ -124,12 +128,13 @@ public class AccountController {
         Account account = Account.getByUsername(username);
         if(account == null)
             new ResponseEntity(HttpStatus.BAD_REQUEST);
-        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
         if(em.getTransaction().isActive())
             em.getTransaction().rollback();
         em.getTransaction().begin();
         em.remove(account);
         em.getTransaction().commit();
+        em.close();
         return new ResponseEntity(HttpStatus.OK);
     }
 
@@ -141,7 +146,7 @@ public class AccountController {
         Account account = Account.getByUsername(username);
         if(account == null)
             new ResponseEntity(HttpStatus.BAD_REQUEST);
-        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
+        EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
         if(em.getTransaction().isActive())
             em.getTransaction().rollback();
         em.getTransaction().begin();
@@ -149,6 +154,7 @@ public class AccountController {
                 (Double) payload.get(COMPACTNESS), (Double) payload.get(POPULATION_EQQUALITY));
         em.merge(account);
         em.getTransaction().commit();
+        em.close();
         return new ResponseEntity(HttpStatus.OK);
     }
 
