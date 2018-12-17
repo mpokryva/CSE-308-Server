@@ -1,6 +1,7 @@
 package com.broncos.gerrymandering.spring.controller;
 
 import com.broncos.gerrymandering.model.Account;
+import com.broncos.gerrymandering.spring.dto.AddAccountDTO;
 import com.broncos.gerrymandering.util.DefaultEntityManagerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -56,6 +57,8 @@ public class AccountController {
         } catch (Exception e) {
             em.close();
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        } finally {
+            em.close();
         }
     }
 
@@ -95,13 +98,17 @@ public class AccountController {
     @RequestMapping(value = "/get-accounts",
             method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public List<Account> getAccounts(@RequestParam String username) {
+    public ResponseEntity getAccounts(@RequestParam String username) {
         Account account = Account.getByUsername(username);
-        if (account == null || !account.isAdmin()) return null;
+        if (account == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Logged in account not found.");
+        } else if (!account.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Must be an admin to get accounts.");
+        }
         EntityManager em = DefaultEntityManagerFactory.getInstance().createEntityManager();
         List<Account> accounts = em.createQuery("SELECT a FROM ACCOUNT a WHERE a.isAdmin = false").getResultList();
         em.close();
-        return accounts;
+        return ResponseEntity.status(HttpStatus.OK).body(accounts);
     }
 
     @RequestMapping(value = "/update-account",
@@ -136,6 +143,31 @@ public class AccountController {
         em.getTransaction().commit();
         em.close();
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PostMapping("/add-account")
+    public ResponseEntity addAccount(@RequestBody AddAccountDTO addAccountDTO, @CookieValue("username") String username) {
+        Account account = Account.getByUsername(username);
+        if (account == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Logged in account not found.");
+        } else if (!account.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Must be an admin to add an account.");
+        }
+        EntityManager em = DefaultEntityManagerFactory.getEntityManager();
+        em.getTransaction().begin();
+        Account newAccount = new Account(addAccountDTO.getEmail(), addAccountDTO.getPassword(),
+                addAccountDTO.getUsername());
+        try {
+            em.persist(newAccount);
+            em.getTransaction().commit();
+            em.close();
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        } finally {
+            em.close();
+        }
+
     }
 
     @RequestMapping(value = "/weights/save",
