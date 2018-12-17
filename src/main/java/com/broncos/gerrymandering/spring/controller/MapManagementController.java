@@ -54,6 +54,7 @@ public class MapManagementController {
         Session session = new Session(sessionUUID, state, saveMapDTO.getUsername());
         em.persist(session);
         em.getTransaction().commit();
+        em.close();
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

@@ -61,6 +61,7 @@ public class Election implements Serializable {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         Election e = em.find(Election.class, 229);
+        em.close();
         System.out.println(e.precinct);
     }
 

@@ -128,5 +128,6 @@ public class Account implements Serializable{
         System.out.println(a.checkPassword("1234"));
         System.out.println(a.checkPassword("123423"));
         em.getTransaction().commit();
+        em.close();
     }
 }

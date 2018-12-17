@@ -134,7 +134,7 @@ public class State implements Serializable {
         double maxPartisanFairness = Double.MIN_VALUE;
         double minPartisanFairness = Double.MAX_VALUE;
         for(District district : districtById.values()) {
-            double partisanFairness = district.getValueByMeasure(Measure.PARTISAN_FAIRNESS);
+            double partisanFairness = district.getDemocractRepublicanVotesRatio();
             if(district.getPopulation() > maxPop)
                 maxPop = district.getPopulation();
             if(district.getPopulation() < minPop)
@@ -144,8 +144,8 @@ public class State implements Serializable {
             if(partisanFairness < minPartisanFairness)
                 minPartisanFairness = partisanFairness;
             population += district.getPopulation();
-            wastedVoteDifferenceTotal += district.getValueByMeasure(Measure.EFFICIENCY_GAP);
-            polsbySum += district.getValueByMeasure(Measure.COMPACTNESS);
+            wastedVoteDifferenceTotal += district.calculateWastedVotes();
+            polsbySum += district.calculateCompactness();
         }
         double effGapTerm = (1 - (Math.abs(wastedVoteDifferenceTotal) / population)) *
                 weights.get(Measure.EFFICIENCY_GAP);
@@ -176,7 +176,7 @@ public class State implements Serializable {
                 / (max - min);
         double variance = 0;
         for(District district: districtById.values()) {
-            double partisanFairness = district.getValueByMeasure(Measure.PARTISAN_FAIRNESS);
+            double partisanFairness = district.getDemocractRepublicanVotesRatio();
             double scaled = (partisanFairness - min) / (max - min);
             variance += Math.pow((scaled - scaledAvg), 2);
         }
@@ -185,6 +185,10 @@ public class State implements Serializable {
 
     public void addDistrict(District district) {
         districtById.put(district.getDistrictId(), district);
+    }
+
+    public void removeDistrict(District district) {
+        districtById.remove(district.getDistrictId());
     }
 
     @Override

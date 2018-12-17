@@ -10,8 +10,8 @@ public class SimulatedAnnealing extends Algorithm {
     private DistrictSelectionCriterion criterion;
     private PriorityQueue<District> descObjValDistricts;
     private double temperature;
-    private static final double K = -1e-3;
-    private static final int MAX_MOVES = 10000;
+    private static final double K = -1e-10;
+    private static final int MAX_MOVES = 1000;
     private static final int MAX_SUCCESSIVE_FAILURES = 500;
 
     public SimulatedAnnealing(StateCode stateCode, Set<Integer> excludedDistricts,
@@ -20,7 +20,7 @@ public class SimulatedAnnealing extends Algorithm {
         setRedistrictedState(getInitialState().cloneForSA());
         this.criterion = criterion;
         descObjValDistricts = new PriorityQueue<>(Collections.reverseOrder(new DistrictComparator(weights)));
-        this.getRedistrictedState().getDistricts().forEach(district -> district.calculateObjFuncValue(this.getWeights()));
+        this.getRedistrictedState().getDistricts().forEach(District::calculateCompactness);
         descObjValDistricts.addAll(this.getRedistrictedState().getDistricts());
         temperature = 1;
     }
@@ -39,6 +39,7 @@ public class SimulatedAnnealing extends Algorithm {
             double delta = preMoveVal - move.getObjFuncVal();
             if (delta > 0) {
                 double acceptanceProb = Math.exp(delta / (K * temperature));
+                acceptanceProb = 0;
                 if (new Random().nextDouble() > acceptanceProb) {
                     move.revert();
                     successiveFailures++;
@@ -50,12 +51,9 @@ public class SimulatedAnnealing extends Algorithm {
             }
             if (successiveFailures == 0) {
                 descObjValDistricts.remove(source);
-                descObjValDistricts.remove(source);
+                descObjValDistricts.remove(destination);
                 descObjValDistricts.add(source);
                 descObjValDistricts.add(destination);
-                if (source.calculateObjFuncValue(this.getWeights()) != 0) {
-
-                }
             }
             moves++;
             temperature = (MAX_MOVES - moves) / (double) MAX_MOVES;
@@ -103,7 +101,7 @@ public class SimulatedAnnealing extends Algorithm {
 
         @Override
         public int compare(District o1, District o2) {
-            double diff = o1.calculateObjFuncValue(weights) - o2.calculateObjFuncValue(weights);
+            double diff = o1.calculateCompactness() - o2.calculateCompactness();
             if (diff > 0) {
                 return 1;
             } else if (diff < 0) {

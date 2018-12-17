@@ -28,10 +28,6 @@ public abstract class Algorithm {
 
     public abstract State run();
 
-    protected double getObjFuncValueByDistrict(District district, Map<Measure, Double> weights) {
-        return redistrictedState.getDistrictById(district.getDistrictId()).calculateObjFuncValue(weights);
-    }
-
     public Set<Integer> getExcludedDistricts() {
         if (excludedDistricts == null) {
             excludedDistricts = new HashSet<>();
