@@ -39,13 +39,13 @@ public class Move {
     }
 
     public void make() {
-        if (destination != null) {
-            destination.addPrecinct(precinct);
-            objFuncVal = destination.getState().getObjFuncVal(weights);
-        }
         if (source != null) {
             source.removePrecinct(precinct);
             objFuncVal = source.getState().getObjFuncVal(weights);
+        }
+        if (destination != null) {
+            destination.addPrecinct(precinct);
+            objFuncVal = destination.getState().getObjFuncVal(weights);
         }
 
     }
@@ -107,34 +107,4 @@ public class Move {
         this.weights = weights;
     }
 
-    public static void main(String[] args) {
-        //precincts: 3504918, 3504985, 3504919
-        StateManager sm = StateManager.getInstance();
-        State nm = sm.getState(StateCode.NM);
-        Map<Measure, Double> weights = new HashMap<>();
-        weights.put(Measure.EFFICIENCY_GAP, 1.0);
-        final int iterations = 1000;
-        for (int i = 0; i < iterations; i++) {
-            District r = sm.getDistrict(new Random().nextInt(5) + 1, StateCode.CT);
-            double refCompactness = r.calculateCompactness();
-            Precinct random = r.getRandomPrecinct();
-            r.removePrecinct(random);
-            r.addPrecinct(random);
-            Assert.equals(r.calculateCompactness(), refCompactness);
-            System.out.println("Good: " + i);
-        }
-//        Precinct p1 = sm.getPrecinct(3504918, 3, StateCode.NM);
-//        Precinct p2 = sm.getPrecinct(3504985, 3, StateCode.NM);
-//        Precinct p3 = sm.getPrecinct(3504919, 3, StateCode.NM);
-//        Set<Precinct> borders = dest.getBorderPrecincts();
-//        Move m = new Move(p1, dest, null, weights);
-//        m.make();
-//        System.out.println("OBJ FUNC: " + m.objFuncVal);
-//        m = new Move(p2, dest, null, weights);
-//        m.make();
-//        System.out.println("OBJ FUNC: " + m.objFuncVal);
-//        m = new Move(p3, dest, null, weights);
-//        m.make();
-//        System.out.println("OBJ FUNC: " + m.objFuncVal);
-    }
 }

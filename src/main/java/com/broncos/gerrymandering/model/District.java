@@ -65,6 +65,11 @@ public class District implements Serializable {
     }
 
     public District cloneForSA(State state) {
+        for (Precinct precinct : this.getPrecincts()) {
+            if (precinct.getDistrict() == null) {
+                throw new IllegalStateException("HERE");
+            }
+        }
         District clone = new District();
         clone.id = null;
         clone.districtId = this.districtId;
@@ -231,14 +236,14 @@ public class District implements Serializable {
 
     public void removePrecinct(Precinct precinct) {
         Precinct p  = precinctById.remove(precinct.getPrecinctId());
-        precinct.setDistrict(null);
-        precinct.setState(null);
+        p.setDistrict(null);
+        p.setState(null);
         //check if geometry is MultiPolygon
-        geometry = getGeometry().difference(precinct.getGeometry());
+        geometry = getGeometry().difference(p.getGeometry());
         GeoJSONWriter writer = new GeoJSONWriter();
         boundary = writer.write(geometry).toString();
         Election distElection = electionByYear.get(CURRENT_YEAR);
-        Election precElection = precinct.getElectionByYear().get(CURRENT_YEAR);
+        Election precElection = p.getElectionByYear().get(CURRENT_YEAR);
         distElection.setDemocratVotes(
                 distElection.getDemocratVotes() - precElection.getDemocratVotes());
         distElection.setRepublicanVotes(
@@ -246,7 +251,7 @@ public class District implements Serializable {
         distElection.setVotingAgePopulation(
                 distElection.getVotingAgePopulation() - precElection.getVotingAgePopulation());
         population -= precElection.getVotingAgePopulation(); //TODO: DO SOMETHING ABOUT NAMING
-        updateBorderPrecincts(precinct, false);
+        updateBorderPrecincts(p, false);
     }
 
 }

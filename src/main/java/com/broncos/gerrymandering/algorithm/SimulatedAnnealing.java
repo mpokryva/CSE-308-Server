@@ -13,6 +13,7 @@ public class SimulatedAnnealing extends Algorithm {
     private static final double K = -1e-10;
     private static final int MAX_MOVES = 1000;
     private static final int MAX_SUCCESSIVE_FAILURES = 500;
+    private District destination;
 
     public SimulatedAnnealing(StateCode stateCode, Set<Integer> excludedDistricts,
                               Map<Measure, Double> weights, DistrictSelectionCriterion criterion) {
@@ -31,8 +32,8 @@ public class SimulatedAnnealing extends Algorithm {
         while (successiveFailures < MAX_SUCCESSIVE_FAILURES && temperature != 0 && moves < MAX_MOVES) {
             System.out.printf("SA moves #: %d\n", moves);
             District source = nextSourceDistrict();
-            District destination = nextDestinationDistrict();
             Precinct precinctToMove = nextPrecinctToMove(source);
+            District destination = this.destination;
             double preMoveVal = this.getRedistrictedState().getObjFuncVal(this.getWeights());
             Move move = new Move(precinctToMove, destination, source, this.getWeights());
             move.make();
@@ -63,9 +64,26 @@ public class SimulatedAnnealing extends Algorithm {
     }
 
 
-    private Precinct nextPrecinctToMove(District district) {
-
-        return district.getRandomBorderPrecinct();
+    private Precinct nextPrecinctToMove(District source) {
+        District destination = null;
+        Precinct precinctToMove;
+        while (destination == null) {
+            precinctToMove = source.getRandomBorderPrecinct();
+            for (Precinct neighbor : precinctToMove.getNeighbors()) {
+                District d = neighbor.getDistrict();
+                if (!d.getDistrictId().equals(source.getDistrictId())) {
+                    destination = d;
+                }
+            }
+        }
+        for (District district : getRedistrictedState().getDistricts()) {
+            if (destination.getDistrictId().equals(district.getDistrictId())) {
+                destination = district;
+                break;
+            }
+        }
+        this.destination = destination;
+        return source.getRandomBorderPrecinct();
     }
 
     private District nextSourceDistrict() {
