@@ -66,7 +66,7 @@ public class RegionGrowing extends Algorithm {
             double prevValue = getRedistrictedState().getObjFuncVal(getWeights());
             move.make();
             //TODO: Play around with randomness of accepting worse moves
-            if (prevValue < move.getObjFuncVal() && Math.random() > 0.5) {
+            if (prevValue > move.getObjFuncVal() && Math.random() > 0.5) {
                 move.revert();
                 unassignedPrecincts.add(precinctToMove);
             } else {
